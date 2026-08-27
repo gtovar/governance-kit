@@ -95,7 +95,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.1.0")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.1.1")
 
     def test_configure_update_migrates_a_legacy_install(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

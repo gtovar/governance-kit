@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import ssl
 import subprocess
 import sys
 import tarfile
@@ -22,6 +23,15 @@ from pathlib import Path
 
 MANIFEST_PATH = Path(".governance-kit/manifest.json")
 API_ROOT = "https://api.github.com/repos"
+
+
+def trusted_ssl_context() -> ssl.SSLContext:
+    """Use certifi when available; otherwise preserve Python's default TLS policy."""
+    try:
+        import certifi  # type: ignore[import-not-found]
+    except ImportError:
+        return ssl.create_default_context()
+    return ssl.create_default_context(cafile=certifi.where())
 
 
 def normalize_version(value: str) -> tuple[int, int, int] | None:
@@ -51,7 +61,7 @@ def request_release(repository: str, tag: str | None = None) -> dict:
         headers={"Accept": "application/vnd.github+json", "User-Agent": "governance-kit-update"},
     )
     try:
-        with urllib.request.urlopen(request, timeout=4) as response:
+        with urllib.request.urlopen(request, timeout=4, context=trusted_ssl_context()) as response:
             return json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError) as error:
         raise RuntimeError(f"could not check GitHub Releases: {error}") from error
@@ -169,7 +179,14 @@ def cmd_apply(root: Path, tag: str) -> int:
         temp_path = Path(temp_dir)
         archive_path = temp_path / "release.tar.gz"
         try:
-            urllib.request.urlretrieve(archive_url, archive_path)
+            archive_request = urllib.request.Request(
+                archive_url,
+                headers={"User-Agent": "governance-kit-update"},
+            )
+            with urllib.request.urlopen(
+                archive_request, timeout=30, context=trusted_ssl_context()
+            ) as response, archive_path.open("wb") as archive_file:
+                shutil.copyfileobj(response, archive_file)
             source_root = temp_path / "source"
             source_root.mkdir()
             safe_extract(archive_path, source_root)
