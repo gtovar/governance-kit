@@ -75,6 +75,11 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 "docs/process/DEVELOPMENT_WORKFLOW.md",
             ):
                 self.assertIn(process_doc, manifest["files"])
+            self.assertEqual(
+                manifest["distribution"]["github_repository"],
+                "gtovar/governance-kit",
+            )
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.2.0")
 
             audit = target / "scripts/governance-audit.py"
             self.assertTrue(audit.is_file())
@@ -95,7 +100,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.1.1")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.2.0")
 
     def test_configure_update_migrates_a_legacy_install(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -135,6 +140,10 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             target = Path(temp_dir) / "project"
             self.run_installer(str(target))
+            manifest_path = target / ".governance-kit/manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest.pop("distribution", None)
+            manifest_path.write_text(json.dumps(manifest))
 
             result = subprocess.run(
                 [sys.executable, "scripts/governance-kit-update.py", "check"],
@@ -146,6 +155,30 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0)
             self.assertIn("not configured", result.stdout)
+
+    def test_installed_update_checker_configures_default_source(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            target = Path(temp_dir) / "project"
+            target.mkdir()
+            manifest_path = target / ".governance-kit/manifest.json"
+            manifest_path.parent.mkdir()
+            manifest_path.write_text(json.dumps({"version": 3, "files": {}}))
+
+            result = subprocess.run(
+                [sys.executable, str(CHECKER), "configure", "--root", str(target)],
+                check=False,
+                text=True,
+                capture_output=True,
+            )
+
+            manifest = json.loads(manifest_path.read_text())
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("configured: gtovar/governance-kit", result.stdout)
+            self.assertEqual(
+                manifest["distribution"]["github_repository"],
+                "gtovar/governance-kit",
+            )
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.0.0")
 
     def test_update_checker_reports_a_newer_github_release(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

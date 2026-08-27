@@ -27,6 +27,7 @@ from pathlib import Path
 
 MANIFEST_DIR = ".governance-kit"
 MANIFEST_NAME = "manifest.json"
+DEFAULT_GITHUB_REPOSITORY = "gtovar/governance-kit"
 
 # Project-owned documents are authoritative inside the target and never updated.
 ALWAYS_PROTECTED = {
@@ -114,6 +115,8 @@ def configure_distribution(manifest: dict, kit_root: Path, repository: str | Non
     distribution = manifest.get("distribution", {})
     if repository:
         distribution["github_repository"] = repository
+    else:
+        distribution.setdefault("github_repository", DEFAULT_GITHUB_REPOSITORY)
     version = kit_version(kit_root)
     if version:
         distribution["installed_version"] = version

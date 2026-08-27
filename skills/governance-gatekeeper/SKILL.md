@@ -45,6 +45,7 @@ commit-readiness — checking whether a logical unit is ready to commit
 deploy           — shipping to an environment
 decision-record  — an architectural/structural decision may need ADR or DDR
 learning-capture — a reusable lesson was found and should be captured
+release-readiness — preparing a consumer-distributable governance-kit release
 ```
 
 ### Clarification gate
@@ -117,11 +118,32 @@ Re-entry and reconciliation must converge:
 
 - `reentry` → follow the start ritual in `docs/session_rituals.md`, including
   the advisory `governance-kit-update.py check` when installed. Report a newer
-  release and obtain explicit approval before `apply`.
+  release and obtain explicit approval before `apply`. If the checker reports
+  that its source is not configured, offer to configure the official source;
+  only after approval run `python3 scripts/governance-kit-update.py configure`.
+  After applying an update that adds local branch lifecycle hygiene, if its
+  integration target is missing or invalid, ask which local branch receives
+  integrations; after the human answers, set that value with `git config
+  --local governance.integrationBranch <branch>`.
 - `close-session` → follow the close ritual in `docs/session_rituals.md`. After
   a successful integration, perform the advisory local branch lifecycle review
-  in `docs/git_hygiene.md`. Report candidates only; do not run `git branch -d`
-  without a separate explicit human instruction.
+  in `docs/git_hygiene.md`. If its integration target is missing, ask which
+  local branch receives integrations; after the human answers, set only that
+  value with `git config --local governance.integrationBranch <branch>`. Report
+  candidates only; do not run `git branch -d` without a separate explicit human
+  instruction.
+
+### Release readiness (kit source only)
+
+Activate `release-readiness` when a coherent checkpoint changes a source file
+that `scripts/update.py` installs into consumer repositories. Do not activate it
+for kit-internal-only changes.
+
+Before the release checkpoint, determine the SemVer version, update `VERSION`,
+write release notes that include migration limits, and run the kit validation
+suite. Prepare the release commit with those artifacts. Creating a tag, pushing
+it, and creating a GitHub Release are external state changes and each require
+explicit human authorization.
 
 ### Governed reconciliation
 

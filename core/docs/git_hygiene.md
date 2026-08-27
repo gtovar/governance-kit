@@ -215,7 +215,9 @@ git config --local --add governance.branchCleanupSafe reconcile/mobile-web
 ```
 
 If the integration target is missing, ambiguous, or not a local branch, report
-that no candidate was evaluated. Do not infer a target from branch names.
+that no candidate was evaluated. Do not infer a target from branch names. Ask
+the human which local branch receives integrations; after the answer, set it
+with the command above instead of asking the human to run Git commands.
 
 ### Read-only review procedure
 

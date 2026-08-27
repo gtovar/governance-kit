@@ -72,7 +72,7 @@ governance-kit (public repository, single source)
   source templates in this kit; installation seeds `<project>/docs/process/`,
   whose files then become project-owned state and are never overwritten by an
   update.
-- **Updates**: `./bin/install.sh update /path/to/project` — safe update via manifest (customized file → intact and reported; untouched file → updated; new kit file → installed; conflicts → manual review). Publish tagged GitHub Releases, configure legacy projects with `./bin/install.sh configure-update /path/to/project --github-repo OWNER/REPO`, and let session re-entry report newer releases before any update is applied.
+- **Updates**: new installations record `gtovar/governance-kit` as their release source and check it advisory at re-entry. When an update exists, the agent asks once before applying safe files. A fork or private distribution overrides the source with `--github-repo OWNER/REPO`. Existing snapshots without a configured source can be configured by their installed update checker after explicit approval; snapshots without that checker require one bootstrap update.
 
 ### Publishing an update
 
@@ -87,14 +87,24 @@ gh release create v0.1.0 --generate-notes
 ```
 
 New installations record the source with
-`--github-repo OWNER/REPO`. Existing installations use `configure-update` once;
-their next re-entry checks the latest published release advisory.
+`gtovar/governance-kit` by default; `--github-repo OWNER/REPO` overrides it.
+Existing installations with the update checker can configure their source from
+inside the consumer repository; snapshots without it need one bootstrap update.
 - **Post-update audit**: the trusted kit copy of `governance-audit.py` reports
   missing canonical entry files, exact unresolved template markers, missing
   README navigation references, non-actionable frontiers, duplicate frontier
   owners, and untracked canonical entry files. Warnings remain non-blocking;
   the updater stays fail-open and semantic consistency stays with agent review.
 - **Vehicles**: every rule declares how it fires — auto-load (constitution), router (if-I-touch-X matrix), skill (per task), hook/script (deterministic), subagent (audit). What has no vehicle is pure reference and is not meant to be enforced.
+
+### Release readiness
+
+When an approved checkpoint changes a source file that `scripts/update.py`
+installs into consumer repositories, activate `release-readiness` before the
+release commit. Determine the SemVer version, update `VERSION`, include the
+consumer migration notes, and validate the kit. A tag, push, and GitHub Release
+remain separate human-authorized actions. Kit-internal-only changes do not
+create a release requirement.
 
 ## Structure
 
@@ -153,10 +163,15 @@ procedure reports safe local cleanup candidates after integration. The
 gatekeeper invokes the review only during post-merge review or close-session,
 and every ref deletion still requires a separate human instruction.
 
-**EXPERIMENTAL (release discovery)**: installed projects can record an official
-GitHub Releases source, check it advisory at re-entry, preview a released
-snapshot, and apply only safe files after explicit approval. This remains
-inactive until the first official release is published.
+**READY (v0.2.0 release)**: release readiness, default official-source
+discovery for new installations, and agent-guided source and integration-target
+configuration are prepared. Publishing `v0.2.0` remains a separate authorized
+action.
+
+**EXPERIMENTAL (release discovery)**: installed projects check their configured
+GitHub Releases source advisory at re-entry, preview a released snapshot, and
+apply only safe files after explicit approval. New installations use the
+official source by default; legacy snapshots retain a one-time bootstrap limit.
 
 **EXPERIMENTAL (governed reconciliation)**: `governance-gatekeeper` composes the
 read-only reviewer and documentation routing into an audit → classification →
@@ -185,6 +200,9 @@ contract is validated after rollout in a fresh project session.
 - **Local branch lifecycle ownership:** extend Git hygiene and the existing
   close-session route rather than adding a watcher, script, or new skill. The
   review is read-only and advisory; the human retains deletion authority.
+- **Release readiness ownership:** extend `governance-gatekeeper` and the
+  source README instead of publishing every commit or adding a release watcher.
+  Only approved changes to installed artifacts become release candidates.
 - **Update ownership:** GitHub Releases are the authoritative update source.
   Checks are read-only and fail-open; applying a release uses file hashes to
   update unchanged files and report customized files for review.
@@ -206,8 +224,19 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **Official release repository:** publish the first GitHub repository, tag
-  `v0.1.0`, and configure its `OWNER/REPO` identifier for existing projects.
+- **v0.2.0 publication:** verify the current GitHub Release state, then obtain
+  authorization to tag, push, and publish `v0.2.0` with the documented legacy
+  bootstrap limit.
+
+## v0.2.0 Release Notes
+
+- Adds advisory local branch lifecycle hygiene after successful integration.
+- New installations discover releases from `gtovar/governance-kit` without
+  requiring a user-supplied source argument.
+- Agents can configure a missing consumer release source or integration target
+  after a single explicit user answer.
+- A consumer snapshot without the installed update checker cannot discover this
+  release by itself and requires one bootstrap update.
 
 ## Origin
 

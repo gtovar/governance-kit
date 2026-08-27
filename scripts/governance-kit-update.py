@@ -23,6 +23,7 @@ from pathlib import Path
 
 MANIFEST_PATH = Path(".governance-kit/manifest.json")
 API_ROOT = "https://api.github.com/repos"
+DEFAULT_GITHUB_REPOSITORY = "gtovar/governance-kit"
 
 
 def trusted_ssl_context() -> ssl.SSLContext:
@@ -48,6 +49,16 @@ def load_manifest(root: Path) -> dict:
         return json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as error:
         raise RuntimeError(f"cannot read {path}: {error}") from error
+
+
+def save_manifest(root: Path, manifest: dict) -> None:
+    path = root / MANIFEST_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+
+
+def valid_repository(repository: str) -> bool:
+    return "/" in repository and not repository.startswith("/") and not repository.endswith("/")
 
 
 def release_url(repository: str, tag: str | None = None) -> str:
@@ -117,6 +128,24 @@ def cmd_check(root: Path) -> int:
     if latest_value <= current_value:
         return 0
     print_release(release, installed_version)
+    return 0
+
+
+def cmd_configure(root: Path, repository: str) -> int:
+    if not valid_repository(repository):
+        print("governance-kit update configuration refused: repository must be OWNER/REPO.", file=sys.stderr)
+        return 2
+    try:
+        manifest = load_manifest(root)
+    except RuntimeError as error:
+        print(f"governance-kit update configuration unavailable: {error}", file=sys.stderr)
+        return 2
+
+    distribution = manifest.setdefault("distribution", {})
+    distribution["github_repository"] = repository
+    distribution.setdefault("installed_version", "0.0.0")
+    save_manifest(root, manifest)
+    print(f"governance-kit update configured: {repository}")
     return 0
 
 
@@ -220,13 +249,20 @@ def cmd_apply(root: Path, tag: str) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check or apply governance-kit GitHub Releases.")
-    parser.add_argument("command", choices=("check", "apply"))
+    parser.add_argument("command", choices=("check", "apply", "configure"))
     parser.add_argument("--root", default=".", help="project root (default: current directory)")
     parser.add_argument("--version", help="release tag required for apply, for example v0.1.1")
+    parser.add_argument(
+        "--github-repo",
+        default=DEFAULT_GITHUB_REPOSITORY,
+        help="GitHub Releases source for configure (default: official source)",
+    )
     args = parser.parse_args()
     root = Path(args.root).resolve()
     if args.command == "check":
         return cmd_check(root)
+    if args.command == "configure":
+        return cmd_configure(root, args.github_repo)
     if not args.version:
         parser.error("apply requires --version vMAJOR.MINOR.PATCH")
     return cmd_apply(root, args.version)
