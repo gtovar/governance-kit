@@ -1,5 +1,5 @@
 {
-  "version": "0.5.0",
+  "version": "0.6.0",
   "notes": {
     "role": "Declarative governance registry for human review and policy visibility.",
     "runtime_authority": "Active enforcement lives in AGENTS.md, the routing matrix, hooks, and deterministic scripts. Editing this file alone does not change runtime behavior.",
@@ -119,6 +119,19 @@
       },
       "severity": "block",
       "vehicle": "AGENTS.md (Commit boundary) + governance-gatekeeper + docs/git_hygiene.md"
+    },
+    {
+      "id": "LOCAL_BRANCH_LIFECYCLE_ADVISORY",
+      "type": "workflow",
+      "category": "git",
+      "trigger": { "intents": ["close-session", "post-merge review"] },
+      "requirement": {
+        "must_identify_only_integrated_safe_local_candidates": true,
+        "must_require_explicit_human_instruction_before_deletion": true,
+        "must_not_mutate_git_state_during_audit": true
+      },
+      "severity": "info",
+      "vehicle": "docs/git_hygiene.md + docs/session_rituals.md + governance-gatekeeper"
     },
     {
       "id": "CONVENTIONAL_COMMITS_REQUIRED",

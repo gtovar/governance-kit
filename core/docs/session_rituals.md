@@ -66,6 +66,9 @@ A read-only re-entry with no state change does not trigger this ritual.
 5. Run `scripts/doc-health.sh` — must be clean.
 6. Record newly changed open decisions in `CURRENT_STAGE.md` and declare one
    actionable frontier using `Action`, `Target`, and `Done when`.
+7. After a successful integration, perform the advisory local branch lifecycle
+   review in `docs/git_hygiene.md`. Report candidates only; a local-branch
+   deletion requires a separate explicit human instruction.
 
 A new agent must be able to continue reading only the canonical artifacts — without the previous conversation.
 

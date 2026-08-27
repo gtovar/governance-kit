@@ -118,7 +118,10 @@ Re-entry and reconciliation must converge:
 - `reentry` → follow the start ritual in `docs/session_rituals.md`, including
   the advisory `governance-kit-update.py check` when installed. Report a newer
   release and obtain explicit approval before `apply`.
-- `close-session` → follow the close ritual in `docs/session_rituals.md`
+- `close-session` → follow the close ritual in `docs/session_rituals.md`. After
+  a successful integration, perform the advisory local branch lifecycle review
+  in `docs/git_hygiene.md`. Report candidates only; do not run `git branch -d`
+  without a separate explicit human instruction.
 
 ### Governed reconciliation
 

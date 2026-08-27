@@ -184,6 +184,81 @@ require explicit approval.
 
 ---
 
+## Local branch lifecycle hygiene
+
+Run this advisory, read-only review only during post-merge review or the
+close-session ritual. It identifies **candidates for deletion**, never branches
+that must be deleted, and does not block implementation or phase gates.
+
+### Configuration
+
+The review requires exactly one local integration target:
+
+```bash
+git config --local governance.integrationBranch main
+```
+
+`main`, `master`, `develop`, the configured integration branch, and the
+currently checked-out branch are always protected. Add project-specific local
+protected branches with repeatable configuration:
+
+```bash
+git config --local --add governance.protectedBranch release
+```
+
+A branch with an upstream is excluded as possible shared active work. Add it
+to `governance.branchCleanupSafe` only after an explicit project decision that
+the local ref is safe to consider:
+
+```bash
+git config --local --add governance.branchCleanupSafe reconcile/mobile-web
+```
+
+If the integration target is missing, ambiguous, or not a local branch, report
+that no candidate was evaluated. Do not infer a target from branch names.
+
+### Read-only review procedure
+
+1. Resolve the integration target, additional protected branches, and safe
+   upstream exceptions with `git config --local --get-all`.
+2. List local branch names, tips, and upstreams with:
+
+```bash
+git for-each-ref --format='%(refname:short) %(objectname) %(upstream:short)' refs/heads
+```
+
+3. Exclude protected branches and branches with an upstream unless explicitly
+   configured in `governance.branchCleanupSafe`.
+4. For each remaining branch, verify its tip with:
+
+```bash
+git merge-base --is-ancestor <tip-commit> <integration-target>
+```
+
+Exit status `0` means the tip is already integrated. Any other status means
+the branch is not a candidate.
+
+For every candidate, report all of the following:
+
+- `Candidate for deletion: <branch-name>`
+- Tip commit
+- Integration target
+- Verification result: tip is an ancestor of the target
+- Upstream classification
+- Suggested non-forced command:
+
+```bash
+git branch -d -- <branch-name>
+```
+
+Deleting that local ref does not delete commits already reachable from the
+integration target. The review performs no Git mutation: it never deletes a
+local or remote branch, uses `git branch -D`, pushes, prunes remotes, or alters
+branch protection. Run the suggested deletion command only after a separate,
+explicit human instruction naming the branch or branches.
+
+---
+
 ## Commit protocol (3 axes)
 
 Before committing, evaluate the change on three axes. Never "hay archivos tocados → commit".

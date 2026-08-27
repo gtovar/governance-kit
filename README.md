@@ -137,7 +137,7 @@ Reconcile governance findings.
 
 **DONE (S2)**: `governance-gatekeeper` skill (executable intent router, 8 modes, interruption format), `session_rituals.md` (start/close rituals, mini-block, "revisa lógica", truth hierarchy), `learning_capture.md` + script, `TESTING_STRATEGY.md`.
 
-**DONE (S3)**: `instruction-registry.json` + schema (13 typed rules with severity and vehicle) + deterministic validator `check-registry.py`; adversarial verification `verify_votes.py` (3-voter panel, ≥2/3 quorum, "the model never self-declares verified"); PII hygiene + "5 dimensions of repo health" lens in the reviewer (check #12).
+**DONE (S3)**: `instruction-registry.json` + schema (14 typed rules with severity and vehicle) + deterministic validator `check-registry.py`; adversarial verification `verify_votes.py` (3-voter panel, ≥2/3 quorum, "the model never self-declares verified"); PII hygiene + "5 dimensions of repo health" lens in the reviewer (check #12).
 
 **DONE (S4)**: phase profiles in the installer (`--profile foundation|implementation|production` — deterministic pre-commit with detect-secrets, CodeQL/governance/dependabot workflows) + Claude Code adapter (`CLAUDE.md` thin adapter + advisory session hooks), Codex adapter (`reviewer.md`), and repo-local Codex skill discovery through `.agents/skills/`.
 
@@ -147,6 +147,11 @@ Reconcile governance findings.
 expansion only after strong logical-slice signals. The gatekeeper inspects Git
 state read-only, proposes checkpoint, separation, or handoff, and requires
 explicit human authorization for every Git state change.
+
+**DONE (local branch lifecycle hygiene)**: an explicit, read-only Git hygiene
+procedure reports safe local cleanup candidates after integration. The
+gatekeeper invokes the review only during post-merge review or close-session,
+and every ref deletion still requires a separate human instruction.
 
 **EXPERIMENTAL (release discovery)**: installed projects can record an official
 GitHub Releases source, check it advisory at re-entry, preview a released
@@ -177,6 +182,9 @@ contract is validated after rollout in a fresh project session.
 - **Commit-boundary ownership:** use the constitution and gatekeeper instead of
   a state MCP or Git watcher. This preserves portability and fail-open behavior;
   the human retains authority over every Git state change.
+- **Local branch lifecycle ownership:** extend Git hygiene and the existing
+  close-session route rather than adding a watcher, script, or new skill. The
+  review is read-only and advisory; the human retains deletion authority.
 - **Update ownership:** GitHub Releases are the authoritative update source.
   Checks are read-only and fail-open; applying a release uses file hashes to
   update unchanged files and report customized files for review.
