@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InstructionRegistry",
+  "type": "object",
+  "required": ["version", "rules"],
+  "properties": {
+    "version": { "type": "string" },
+    "notes": { "type": "object" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "category", "requirement", "severity"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["hard_rule", "soft_preference", "style", "memory", "workflow", "decision_gate"]
+          },
+          "category": { "type": "string" },
+          "trigger": { "type": "object" },
+          "requirement": { "type": "object" },
+          "severity": { "type": "string", "enum": ["info", "warn", "block"] },
+          "vehicle": { "type": "string" }
+        }
+      }
+    }
+  }
+}

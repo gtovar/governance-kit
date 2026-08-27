@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cat docs/process/CURRENT_STAGE.md 2>/dev/null || echo \"(no CURRENT_STAGE.md yet)\"; python3 scripts/governance-kit-update.py check 2>/dev/null || true'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'bash scripts/doc-health.sh 2>/dev/null || true'",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "skills": {
+    "decision-expander": {
+      "ACTIVATION_POLICY.md": "e48cad9bc7efe170d7cb53b881dda35e5e0de91714f45b1604207a1461d35aad",
+      "DECISION_LENSES.md": "7f48211a28df2343bfeab7a2c57f91bf310f14843d20995fd2c4c65991fdaafd",
+      "SKILL.md": "9e9084b122638380a0d02d1ec3bd0b6db75f66940bbb3f90a48b5ec069d25e2e"
+    },
+    "documentation-governance": {
+      "SKILL.md": "72f765f8070dfa68e2ac974c59a25116bc1d1ca76363729bf12fa1f98526aa63"
+    },
+    "governance-gatekeeper": {
+      "SKILL.md": "cc568dc15659066612ac0f9cbcad5c98b09b24ee50993db875fc275a42bf1f50",
+      "references/reconciliation.md": "850351a28ff8b57957d2f2abad51eb48aeb2a18ff05c8dc8c13b8e00c4825810"
+    },
+    "governance-reviewer": {
+      "SKILL.md": "800eea91529ea5b1f9300d2567932c7e66c296dd2906436dfd191824432cfb5c"
+    },
+    "useful-comments-reviewer": {
+      "SKILL.md": "f027e59391771788fb39392af25d4cf94c39200ff7492ce8eede7d699d589256"
+    }
+  },
+  "version": 1
+}

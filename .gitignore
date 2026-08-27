@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Secrets — never commit real env files
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+
+# Logs and temp
+*.log
+
+# Editor
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc

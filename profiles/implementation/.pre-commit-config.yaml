@@ -1,0 +1,57 @@
+# pre-commit config — governance-kit implementation profile.
+# Instalar con: pre-commit install
+# Los hooks son deterministas; si uno no puede ejecutarse de forma confiable, no debe bloquear (fail-open).
+
+repos:
+  - repo: local
+    hooks:
+      - id: governance-doc-health
+        name: governance doc-health
+        # Deterministic gate: doc integrity (fences/links/ghost docs) blocks the commit.
+        entry: bash -c 'bash scripts/doc-health.sh; rc=$?; [ "$rc" = 0 ] || { echo "doc-health: hallazgos — corregir antes de commitear"; exit 1; }'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        verbose: true
+
+      - id: governance-comment-hygiene
+        name: governance comment-hygiene
+        # Advisory: reports comment hygiene, never blocks.
+        entry: bash -c 'bash scripts/comment-hygiene.sh . || true'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+        verbose: true
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: '\.(lock|json|baseline)$'
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+
+  # Python (descomentar si el proyecto usa Python):
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.9.0
+  #   hooks:
+  #     - id: ruff
+  #       args: ['--fix']
+  #     - id: ruff-format
+
+  # Frontend (descomentar si el proyecto usa JS/TS):
+  # - repo: https://github.com/pre-commit/mirrors-prettier
+  #   rev: v4.0.0-alpha.8
+  #   hooks:
+  #     - id: prettier
+  #       types_or: [javascript, jsx, typescript, tsx, css, json, yaml]

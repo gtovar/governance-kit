@@ -1,0 +1,25 @@
+name: Governance checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Doc health (deterministic)
+        run: bash scripts/doc-health.sh
+
+      - name: Registry validation (deterministic)
+        run: python3 scripts/check-registry.py docs/instruction-registry.json
+
+      - name: Secrets baseline check (detect-secrets)
+        run: |
+          pip install detect-secrets==1.5.0 -q
+          detect-secrets scan --baseline .secrets.baseline
+          detect-secrets audit .secrets.baseline || true

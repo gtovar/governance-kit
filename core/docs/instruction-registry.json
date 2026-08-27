@@ -1,0 +1,151 @@
+{
+  "version": "0.5.0",
+  "notes": {
+    "role": "Declarative governance registry for human review and policy visibility.",
+    "runtime_authority": "Active enforcement lives in AGENTS.md, the routing matrix, hooks, and deterministic scripts. Editing this file alone does not change runtime behavior.",
+    "editing_warning": "Keep the registry in sync with the constitution: every rule here must have a corresponding vehicle (constitution / skill / hook / script / reviewer)."
+  },
+  "rules": [
+    {
+      "id": "MINIMUM_CONTEXT_REQUIRED",
+      "type": "hard_rule",
+      "category": "context",
+      "trigger": { "intents": ["analysis", "implementation", "architecture", "debugging"] },
+      "requirement": { "must_load_minimum_context": true },
+      "severity": "block",
+      "vehicle": "AGENTS.md (Start here) + governance-gatekeeper"
+    },
+    {
+      "id": "PHASE_AWARENESS_REQUIRED",
+      "type": "hard_rule",
+      "category": "session",
+      "trigger": { "keywords": ["implement", "build", "code", "change", "migrate", "deploy"] },
+      "requirement": { "must_state_current_phase_before_acting": true },
+      "severity": "block",
+      "vehicle": "AGENTS.md (Phase awareness / anti-MVP rule)"
+    },
+    {
+      "id": "ACTIONABLE_FRONTIER_REQUIRED",
+      "type": "hard_rule",
+      "category": "session",
+      "trigger": { "intents": ["reentry", "reconcile", "close-session"] },
+      "requirement": {
+        "must_name_action_target_and_done_condition": true,
+        "warnings_must_not_be_promoted_implicitly": true,
+        "repeated_review_requires_new_evidence": true
+      },
+      "severity": "block",
+      "vehicle": "AGENTS.md (convergence rules) + governance-gatekeeper + scripts/governance-audit.py"
+    },
+    {
+      "id": "VERIFIED_CLAIMS_ONLY",
+      "type": "style",
+      "category": "truth",
+      "trigger": { "intents": ["analysis", "architecture", "documentation"] },
+      "requirement": { "must_label_fact_inference_hypothesis_risk": true },
+      "severity": "warn",
+      "vehicle": "AGENTS.md (Operating policy)"
+    },
+    {
+      "id": "STRUCTURAL_CHANGE_REQUIRES_ADR_DDR_CHECK",
+      "type": "decision_gate",
+      "category": "architecture",
+      "trigger": {
+        "keywords": ["architecture", "structural", "contract", "event", "policy", "state model"],
+        "changed_file_patterns": [
+          "**/routes/**", "**/controllers/**", "**/events/**", "**/models/**",
+          "**/migrations/**", ".github/workflows/**", "Dockerfile", "docker-compose.yml"
+        ]
+      },
+      "requirement": { "must_run_adr_ddr_classification": true },
+      "severity": "block",
+      "vehicle": "docs/ADR_POLICY.md + documentation-governance skill"
+    },
+    {
+      "id": "DOCS_FOLLOW_TEMPLATES",
+      "type": "style",
+      "category": "documentation",
+      "trigger": { "keywords": ["document", "README", "PROJECT_STATE", "Sprint_Log", "ADR", "spec"] },
+      "requirement": { "must_use_fixed_templates": true },
+      "severity": "warn",
+      "vehicle": "docs/templates/ + documentation-governance skill"
+    },
+    {
+      "id": "DOC_HEALTH_REQUIRED_BEFORE_CLOSE",
+      "type": "workflow",
+      "category": "documentation",
+      "trigger": { "keywords": ["close", "commit", "ready", "done"] },
+      "requirement": { "doc_health_must_be_clean": true },
+      "severity": "block",
+      "vehicle": "scripts/doc-health.sh (deterministic)"
+    },
+    {
+      "id": "CLOSE_SESSION_REQUIRES_NEXT_STEP",
+      "type": "workflow",
+      "category": "session",
+      "trigger": { "keywords": ["close session", "finish", "handoff", "end"] },
+      "requirement": { "must_update_state_and_declare_next_step": true },
+      "severity": "block",
+      "vehicle": "docs/session_rituals.md (close ritual)"
+    },
+    {
+      "id": "KIT_UPDATE_CHECK_ON_REENTRY",
+      "type": "workflow",
+      "category": "distribution",
+      "trigger": { "intents": ["reentry"] },
+      "requirement": {
+        "must_check_configured_release_source_advisory": true,
+        "must_obtain_human_approval_before_apply": true
+      },
+      "severity": "warn",
+      "vehicle": "docs/session_rituals.md + scripts/governance-kit-update.py + governance-gatekeeper"
+    },
+    {
+      "id": "COMMIT_BOUNDARY_REQUIRES_READINESS",
+      "type": "workflow",
+      "category": "git",
+      "trigger": {
+        "signals": [
+          "completed declared logical slice",
+          "aligned code tests and required documentation",
+          "scope expansion before checkpoint",
+          "mixed concerns in working tree"
+        ]
+      },
+      "requirement": {
+        "must_activate_commit_readiness_before_scope_expansion": true,
+        "must_inspect_working_tree_read_only": true,
+        "must_obtain_human_decision_before_git_state_change": true
+      },
+      "severity": "block",
+      "vehicle": "AGENTS.md (Commit boundary) + governance-gatekeeper + docs/git_hygiene.md"
+    },
+    {
+      "id": "CONVENTIONAL_COMMITS_REQUIRED",
+      "type": "hard_rule",
+      "category": "git",
+      "trigger": { "intents": ["commit-readiness"] },
+      "requirement": { "commit_message_must_follow_conventional_commits": true },
+      "severity": "block",
+      "vehicle": "hooks/commit-msg.sh (advisory; GOVERNANCE_ENFORCE=1 blocks)"
+    },
+    {
+      "id": "SECRETS_NEVER_COMMITTED",
+      "type": "hard_rule",
+      "category": "security",
+      "trigger": { "keywords": [".env", "token", "secret", "key", "credential"] },
+      "requirement": { "no_real_secrets_in_repo": true },
+      "severity": "block",
+      "vehicle": "good_practices.md (security) + secret scan in S4 pre-commit profile"
+    },
+    {
+      "id": "PII_HYGIENE_REQUIRED",
+      "type": "hard_rule",
+      "category": "security",
+      "trigger": { "keywords": ["log", "screenshot", "dump", "export", "fixture"] },
+      "requirement": { "no_real_pii_in_committed_artifacts": true },
+      "severity": "block",
+      "vehicle": "reviewer check #12 + good_practices.md"
+    }
+  ]
+}
