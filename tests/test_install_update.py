@@ -79,7 +79,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "gtovar/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.2.0")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.3.0")
 
             audit = target / "scripts/governance-audit.py"
             self.assertTrue(audit.is_file())
@@ -100,7 +100,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.2.0")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.3.0")
 
     def test_configure_update_migrates_a_legacy_install(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

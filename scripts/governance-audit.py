@@ -62,6 +62,16 @@ VAGUE_FRONTIER_REFERENCE = re.compile(
 EXACT_FRONTIER_REFERENCE = re.compile(
     r"`[^`\n]*(?:/|\.md\b|#[\w-]+|[A-Z][A-Z0-9_]*-\d+)[^`\n]*`"
 )
+CROSS_REFERENCE_ACTION = re.compile(
+    r"(?im)^\s*Action:\s*(?:consult|read|review|see|refer|follow)\b"
+)
+PROJECT_MAP_REFERENCE = re.compile(r"PROJECT_MAP\.md", re.IGNORECASE)
+CURRENT_STAGE_AUTHORITY_REFERENCE = re.compile(
+    r"(?:authoritative|source of truth|read it directly|consult it)[^.\n]{0,160}"
+    r"CURRENT_STAGE\.md|CURRENT_STAGE\.md[^.\n]{0,160}"
+    r"(?:authoritative|source of truth|read it directly|consult it)",
+    re.IGNORECASE,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -251,6 +261,23 @@ def collect_findings(root: Path) -> list[dict[str, object]]:
                     "docs/process/CURRENT_STAGE.md",
                     "; ".join(reasons)
                     + "; name one exact target and an observable completion condition",
+                    line_number(current_stage, frontier_offset),
+                )
+
+            project_map = texts.get("docs/process/PROJECT_MAP.md", "")
+            if (
+                CROSS_REFERENCE_ACTION.search(frontier_body)
+                and PROJECT_MAP_REFERENCE.search(frontier_body)
+                and CURRENT_STAGE_AUTHORITY_REFERENCE.search(project_map)
+            ):
+                add_finding(
+                    findings,
+                    "BLOCKER",
+                    "CIRCULAR_FRONTIER_REFERENCE",
+                    "docs/process/CURRENT_STAGE.md",
+                    "the next frontier delegates to PROJECT_MAP.md while that map "
+                    "declares CURRENT_STAGE.md authoritative; name the decision "
+                    "or action directly instead",
                     line_number(current_stage, frontier_offset),
                 )
 

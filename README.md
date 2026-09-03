@@ -92,7 +92,7 @@ Existing installations with the update checker can configure their source from
 inside the consumer repository; snapshots without it need one bootstrap update.
 - **Post-update audit**: the trusted kit copy of `governance-audit.py` reports
   missing canonical entry files, exact unresolved template markers, missing
-  README navigation references, non-actionable frontiers, duplicate frontier
+  README navigation references, non-actionable or circular frontiers, duplicate frontier
   owners, and untracked canonical entry files. Warnings remain non-blocking;
   the updater stays fail-open and semantic consistency stays with agent review.
 - **Vehicles**: every rule declares how it fires — auto-load (constitution), router (if-I-touch-X matrix), skill (per task), hook/script (deterministic), subagent (audit). What has no vehicle is pure reference and is not meant to be enforced.
@@ -163,9 +163,15 @@ procedure reports safe local cleanup candidates after integration. The
 gatekeeper invokes the review only during post-merge review or close-session,
 and every ref deletion still requires a separate human instruction.
 
-**READY (v0.2.0 release)**: release readiness, default official-source
+**DONE (circular frontier guard)**: the `CURRENT_STAGE.md` template and
+workflow distinguish process references from executable frontiers. The advisory
+governance audit blocks the mechanically verifiable cycle where a Next action
+only consults `PROJECT_MAP.md` while that map declares `CURRENT_STAGE.md`
+authoritative.
+
+**READY (v0.3.0 release)**: circular-frontier guard, release readiness, default official-source
 discovery for new installations, and agent-guided source and integration-target
-configuration are prepared. Publishing `v0.2.0` remains a separate authorized
+configuration are prepared. Publishing `v0.3.0` remains a separate authorized
 action.
 
 **EXPERIMENTAL (release discovery)**: installed projects check their configured
@@ -200,6 +206,10 @@ contract is validated after rollout in a fresh project session.
 - **Local branch lifecycle ownership:** extend Git hygiene and the existing
   close-session route rather than adding a watcher, script, or new skill. The
   review is read-only and advisory; the human retains deletion authority.
+- **Circular-frontier ownership:** extend the current-state template, workflow,
+  and advisory governance audit rather than introduce another process document
+  or agent. The detector is limited to an observable mutual-reference pattern;
+  agents retain judgment for all other frontier quality.
 - **Release readiness ownership:** extend `governance-gatekeeper` and the
   source README instead of publishing every commit or adding a release watcher.
   Only approved changes to installed artifacts become release candidates.
@@ -224,9 +234,20 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.2.0 publication:** verify the current GitHub Release state, then obtain
-  authorization to tag, push, and publish `v0.2.0` with the documented legacy
+- **v0.3.0 publication:** verify the current GitHub Release state, then obtain
+  authorization to tag, push, and publish `v0.3.0` with the documented legacy
   bootstrap limit.
+
+## v0.3.0 Release Notes
+
+- Adds an advisory governance-audit blocker for a mechanically verifiable
+  circular frontier: a Next action only consults `PROJECT_MAP.md` while that
+  map declares `CURRENT_STAGE.md` authoritative.
+- New installations receive template and workflow guidance that process
+  references are context, not an executable frontier.
+- Existing installations receive the audit update only when their managed
+  `scripts/governance-audit.py` remains uncustomized; project-owned process
+  state files remain protected and are not overwritten.
 
 ## v0.2.0 Release Notes
 

@@ -162,6 +162,44 @@ F0 — Foundation
                 findings["NON_ACTIONABLE_FRONTIER"]["message"],
             )
 
+    def test_reports_a_circular_process_reference_as_a_blocker(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir) / "project"
+            root.mkdir()
+            self.create_project(
+                root,
+                project_map=(
+                    "# Project Map\n\n"
+                    "For current work, CURRENT_STAGE.md is authoritative; "
+                    "read it directly.\n"
+                ),
+            )
+            self.write(
+                root,
+                "docs/process/CURRENT_STAGE.md",
+                """# Current Stage
+
+F0 — Foundation
+
+## Next
+
+Action: Consult the project map
+Target: `docs/process/PROJECT_MAP.md`
+Done when: The next frontier has been selected.
+""",
+            )
+
+            result, report = self.run_audit(root)
+            findings = {
+                finding["code"]: finding for finding in report["findings"]
+            }
+
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("CIRCULAR_FRONTIER_REFERENCE", findings)
+            self.assertEqual(
+                findings["CIRCULAR_FRONTIER_REFERENCE"]["severity"], "BLOCKER"
+            )
+
     def test_duplicate_frontier_is_warning_and_does_not_fail(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir) / "project"

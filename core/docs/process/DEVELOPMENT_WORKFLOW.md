@@ -123,6 +123,11 @@ current gate explicitly depends on it. If a gate's evidence is satisfied and no
 real blocker remains, the next frontier is the gate decision itself, not
 another review.
 
+A cross-reference to `PROJECT_MAP.md`, `CURRENT_STAGE.md`, or another process
+document is context, not a frontier. Do not use a document reference to defer
+choosing the action, target, or closure evidence. If the next work requires a
+human choice, make that decision the explicit frontier.
+
 After a meaningful session:
 
 ```text

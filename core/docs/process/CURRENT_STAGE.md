@@ -58,6 +58,9 @@ Done when: <observable completion condition>
 This file has one frontier owner: `## Next`. A valid frontier names an action,
 an exact target, and observable completion evidence. It must not point to an
 undefined collection such as "remaining findings" or "pending issues".
+It must not use a cross-reference to another process document as a substitute
+for a frontier. When the next step is a human decision, name that decision as
+the target and state the evidence that closes it.
 
 Update this file only when a verified fact, phase, scope, decision, or frontier
 changes. A read-only re-entry that discovers no state change does not trigger an
