@@ -79,7 +79,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "gtovar/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.0")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.1")
 
             audit = target / "scripts/governance-audit.py"
             self.assertTrue(audit.is_file())
@@ -100,7 +100,45 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.0")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.1")
+
+    def test_reinstall_for_an_adapter_does_not_reset_customized_file_baselines(
+        self,
+    ) -> None:
+        # Regression: bin/install.sh's final manifest step used to rehash every
+        # tracked file against current disk content on every run, including a
+        # re-run that only adds an adapter or profile to an already-installed
+        # project. That reset a customized file's tracked baseline to its own
+        # customized content, so the next `update` treated it as "unmodified"
+        # and silently overwrote it with the kit's generic version — destroying
+        # real project content (observed live: AGENTS.md, README.md,
+        # docs/index.md, docs/instruction-registry.json all got overwritten
+        # this way on a production project after a plain `--adapter claude`
+        # re-run followed by `update`).
+        with tempfile.TemporaryDirectory() as temp_dir:
+            target = Path(temp_dir) / "project"
+            self.run_installer(str(target))
+
+            agents_path = target / "AGENTS.md"
+            with agents_path.open("a") as f:
+                f.write("\nproject-specific customization line\n")
+            customized_content = agents_path.read_text()
+
+            # Re-running the installer to add an adapter must not disturb the
+            # tracked baseline for a file the project already customized.
+            self.run_installer(str(target), "--adapter", "claude")
+
+            self.assertEqual(agents_path.read_text(), customized_content)
+
+            result = self.run_updater("update", str(KIT_ROOT), str(target))
+            self.assertIn("customized — kept (never overwrite)", result.stdout)
+            self.assertIn("AGENTS.md", result.stdout)
+            self.assertEqual(
+                agents_path.read_text(),
+                customized_content,
+                "update must never overwrite a file customized before a "
+                "later --adapter/--profile re-install",
+            )
 
     def test_configure_update_migrates_a_legacy_install(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

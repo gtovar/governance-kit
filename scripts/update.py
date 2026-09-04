@@ -125,17 +125,31 @@ def configure_distribution(manifest: dict, kit_root: Path, repository: str | Non
 
 
 def cmd_manifest(kit_root: Path, target: Path, repository: str | None = None) -> int:
+    # bin/install.sh calls this after every install, including a re-run on an
+    # already-installed project (e.g. to add --adapter claude or a --profile
+    # later). Never rehash a file already in the manifest: that would reset a
+    # customized file's tracked baseline to its current (customized) content,
+    # making a later `update` treat it as unmodified and silently overwrite it
+    # with the kit's generic version the next time the kit changes that file.
+    # Only add entries for files the manifest does not know about yet.
     previous = load_manifest(target)
-    manifest = {"version": 3, "files": {}}
+    manifest = {"version": 3, "files": dict(previous.get("files", {}))}
     if "distribution" in previous:
         manifest["distribution"] = previous["distribution"]
     configure_distribution(manifest, kit_root, repository)
+    added = 0
     for src, dest in collect_pairs(kit_root):
+        if dest in manifest["files"]:
+            continue
         dest_path = target / dest
         if dest_path.is_file():
             manifest["files"][dest] = {"src": src, "hash": sha256(dest_path)}
+            added += 1
     save_manifest(target, manifest)
-    print(f"update: manifest recorded {len(manifest['files'])} files → {target / MANIFEST_DIR / MANIFEST_NAME}")
+    print(
+        f"update: manifest recorded {len(manifest['files'])} files "
+        f"({added} new) → {target / MANIFEST_DIR / MANIFEST_NAME}"
+    )
     return 0
 
 

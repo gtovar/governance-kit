@@ -205,6 +205,26 @@ sat unused, and fixed what the evidence supported:
   the advisory kit-update check and doc-health-on-close depend entirely on
   the agent remembering the ritual by itself — the reviewed repo had silently
   run three minor versions behind for exactly this reason.
+**FIXED (v0.4.1 — found while applying v0.4.0 to the reviewed project)**:
+`bin/install.sh`'s final manifest step used to unconditionally rehash every
+kit-managed file against its current on-disk content, including on a re-run
+that only adds an adapter or profile to an *already-installed* project. That
+silently reset a customized file's tracked baseline to its own customized
+content, so the next `update` treated it as unmodified since install and
+overwrote it with the kit's current generic version — destroying real project
+content. Observed live: re-running `install.sh <project> --adapter claude` on
+an already-customized project, then `install.sh update <project>`, silently
+overwrote `AGENTS.md`, `README.md`, `docs/index.md`, and
+`docs/instruction-registry.json` with generic kit versions before the loss was
+caught and reverted from git. `scripts/update.py`'s manifest step now only
+adds entries for files it has not seen before; it never rewrites the tracked
+hash of a file already in the manifest. Regression-tested
+(`test_reinstall_for_an_adapter_does_not_reset_customized_file_baselines`).
+**If your project ever re-ran `install.sh` with a new `--adapter`/`--profile`
+flag on an existing install before this fix, treat any file `update` reports
+as "safe to update" with suspicion — verify it against your own git history
+before trusting it.**
+
 - Fixed the real reason `governance-reviewer`, `governance-gatekeeper`,
   `useful-comments-reviewer`, and `documentation-governance` never fired in
   the reviewed repo: the installer only ever wrote skills to
