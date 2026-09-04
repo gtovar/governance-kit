@@ -58,6 +58,24 @@ Historical documents provide context; the current state overrides old examples. 
 - No destructive or irreversible action without explicit confirmation.
 - If the human gives ambiguous instructions, ask the minimal question needed to proceed without guessing; do not invent intent.
 
+## Completion and decision protocol
+
+- Do not end a work block after a partial update when its next step is known,
+  authorized, and safe to execute. Progress messages are not a substitute for
+  completing that sequence.
+- Every final response after meaningful work must end in exactly one useful
+  state: a verified completed result and its next frontier; one concrete
+  decision required with its effect; or a real blocker with evidence and the
+  exact missing input.
+- Do not repeat a confirmation for implementation, tests, validation,
+  documentation, or handoff already included in an authorized work block.
+- When a pending product, architecture, or governance decision activates
+  `decision-expander`, follow the append-only expansion loop in
+  `docs/session_rituals.md` before acting.
+- This protocol does not grant authority to invent product requirements,
+  expand the declared scope, perform destructive work, or change Git state.
+  Those limits remain governed by this constitution.
+
 ## Routing by activity (si toco X → consulto/actualizo Y)
 
 The documents below are installed in this repository and are binding when their activity fires. Do not wait to be told:
@@ -72,7 +90,9 @@ The documents below are installed in this repository and are binding when their 
 | Project state docs (`PROJECT_STATE.md` etc.) | `docs/templates/project_state_fill_guide.md` — fixed structure, 4 triggers, snapshot |
 | User stories / HUs | `docs/templates/HU_template.md`, `empezar_historia.md`, `cerrar_historia.md` |
 | New repository docs | `docs/templates/` — use the fixed templates; never invent section layouts |
-| Doc health | `scripts/doc-health.sh` — must be clean before closing a work block |
+| Doc health | `scripts/doc-health.sh` — must be clean before closing a work block; add project-only exclusions via `.doc-health-ignore`, never hand-edit the script |
+| Instruction registry (`docs/instruction-registry.json`) | `scripts/check-registry.py` — must pass before closing a change to the registry |
+| Deferred, found-but-out-of-scope, or authorized-but-not-yet-started work | `docs/templates/pending_work_template.md` — status-tagged ledger; do not silently drop or silently fix a finding outside the current frontier |
 | Session start / re-entry | `docs/session_rituals.md` (start ritual) + `governance-gatekeeper` skill (intent routing) |
 | Kit update check | `scripts/governance-kit-update.py check` — advisory GitHub Release discovery; inspect and approve before applying |
 | Session close / handoff | `docs/session_rituals.md` (close ritual) + Handoff section below |

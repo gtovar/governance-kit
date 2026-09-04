@@ -1,6 +1,7 @@
 # Learning Capture (Canonical)
 
 > **Vehículo**: enrutada desde la constitución (actividad: lección reutilizable detectada) + script determinista `scripts/learning-capture.sh` (append al inbox). El inbox vive en la raíz del repo: `LEARNING_CAPTURE_INBOX.md`.
+> **Disparador real**: no depende solo de juicio espontáneo a media sesión — el close ritual (`docs/session_rituals.md`) revisa cada bullet de "what was learned" contra la lista de abajo en cada cierre de sesión, así que la captura ocurre en un paso que de todos modos ya es obligatorio.
 > **Autoridad**: normativa para decidir qué se captura; el formato es fijo.
 
 La lección técnica que no se captura en el momento se evapora cuando se cierra la sesión. Este mecanismo la congela antes de que se pierda — incluso antes de que esté pulida como tarjeta Anki, ADR o doc formal.

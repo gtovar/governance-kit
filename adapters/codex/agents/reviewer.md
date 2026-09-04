@@ -35,6 +35,18 @@ For findings that may be reconciled, classify the recommended action as
 `MECHANICAL`, `JUDGMENT_REQUIRED`, `TRANSITION`, or
 `EXTERNAL_OR_DESTRUCTIVE`. The classification does not authorize a fix.
 
+## Adversarial verification (disputed or high-stakes BLOCKER findings)
+
+For a BLOCKER finding whose confidence is genuinely disputed, or before it
+blocks a release-readiness or production-profile gate, do not self-declare it
+"verified". Get two more independent reviews of the same finding (fresh
+context each pass), then compute the panel verdict deterministically:
+write candidates to `<run_dir>/findings.json`, record each pass's true/false
+vote per candidate in `<run_dir>/votes.json`, run
+`python3 scripts/verify_votes.py <run_dir>`, and report its `verification.json`
+verdict (>= 2/3 true votes required) instead of a personal recount. Skip this
+for ordinary findings.
+
 ## Rules
 
 - Read-only: do not modify any file.

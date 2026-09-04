@@ -55,12 +55,36 @@ Forces iteration and avoids the "solve it all in one go" pattern.
   `commit-readiness` decision before further implementation.
 - Agreed trigger word: if the human writes **"revisa lógica"**, activate analytic mode: risks, assumptions, 2-3 alternatives, 1 recommendation — before answering.
 
+## Completion and decision loop
+
+When a pending product, architecture, or governance decision activates
+`decision-expander`, use this append-only loop before executing its plan:
+
+1. Record the expansion findings in the current `Sprint_Log.md` entry.
+2. Record `Plan P0` from those findings, with action, target, and observable
+   completion condition.
+3. Evaluate the current plan against the expansion findings.
+4. If a correction is needed, append `Plan P1`, `Plan P2`, and so on; do not
+   replace an earlier plan entry.
+5. Repeat evaluation until the current plan is ready, then execute it when the
+   required scope and action authority exist.
+
+This loop reduces clarification churn; it does not replace explicit authority
+required by the constitution for scope expansion, destructive work, or Git
+state changes.
+
 ## Close ritual (close-session, ~5 min)
 
 A read-only re-entry with no state change does not trigger this ritual.
 
 1. Update `PROJECT_STATE.md` per its fill guide (snapshot, one single next action).
 2. Add 3 bullets to the sprint log: **what was done / what was learned / what's next** (mini-retro, factual).
+   While writing "what was learned", check each bullet against
+   `docs/learning_capture.md`'s "Qué SÍ pertenece" list (debugging lesson,
+   tooling gotcha, architecture lesson, contract mistake caught by tests,
+   recurring-problem fix). For any bullet that qualifies, also append it with
+   `scripts/learning-capture.sh` in this same close block — do not defer it to
+   a separate pass, since a lesson not captured at close time evaporates.
 3. Run tests if applicable (guard rail).
 4. If contracts changed (API/events), update those docs before closing.
 5. Run `scripts/doc-health.sh` — must be clean.

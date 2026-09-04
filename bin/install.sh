@@ -74,6 +74,7 @@ run_governance_audit() {
 cmd_global() {
   install_skills_into "$HOME/.config/opencode/skills"
   install_skills_into "$HOME/.agents/skills"
+  install_skills_into "$HOME/.claude/skills"
   log "done. Restart the agent if newly installed skills do not appear."
 }
 
@@ -141,7 +142,7 @@ cmd_project() {
   # Templates with fixed structure (never overwrite)
   local tpl_dest="$target/docs/templates"
   mkdir -p "$tpl_dest"
-  for tpl in HU_template.md cerrar_historia.md empezar_historia.md project_state_fill_guide.md readme_reentry_template.md readme.guia.md sprint_log_template.md pull_request_template.md issue_feature.md issue_bug_spike.md design_document_template.md api_reference_template.md quickstart_template.md seeders.guia.md project_state_frontend_template.md; do
+  for tpl in HU_template.md cerrar_historia.md empezar_historia.md project_state_fill_guide.md readme_reentry_template.md readme.guia.md sprint_log_template.md pull_request_template.md issue_feature.md issue_bug_spike.md design_document_template.md api_reference_template.md quickstart_template.md seeders.guia.md project_state_frontend_template.md pending_work_template.md; do
     if [ -e "$tpl_dest/$tpl" ]; then
       skip "$tpl_dest/$tpl"
     else
@@ -276,6 +277,10 @@ cmd_project() {
       cp "$KIT_DIR/adapters/claude/settings.json" "$claude_dest/settings.json"
       add "$claude_dest/settings.json"
     fi
+    # Claude Code discovers skills from .claude/skills/, not .opencode/skills/
+    # or .agents/skills/ — without this, the 4 governance skills are invisible
+    # to Claude Code even though they were vendored for other agents.
+    install_skills_into "$claude_dest/skills"
   fi
 
   if [ "$ADAPTER" = "codex" ] || [ "$ADAPTER" = "all" ]; then
@@ -287,6 +292,14 @@ cmd_project() {
       cp "$KIT_DIR/adapters/codex/agents/reviewer.md" "$codex_dest/reviewer.md"
       add "$codex_dest/reviewer.md"
     fi
+  fi
+
+  if [ "$ADAPTER" != "claude" ] && [ "$ADAPTER" != "all" ]; then
+    log "note: no Claude adapter installed (pass --adapter claude or --adapter all)."
+    log "      Claude Code will still read AGENTS.md directly, but without"
+    log "      .claude/settings.json its SessionStart/Stop hooks never fire —"
+    log "      the advisory kit-update check and doc-health-on-close then rely"
+    log "      entirely on the agent remembering the session_rituals.md steps."
   fi
 
   log "done. A new agent should now enter '$target', read AGENTS.md and docs/process/, and know how to work."

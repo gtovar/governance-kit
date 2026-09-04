@@ -7,6 +7,10 @@
 # Exit codes: 0 = clean, 1 = findings (documentation drift detected)
 # Advisory by design: this checker reports; it never blocks on its own.
 # Usage: ./scripts/doc-health.sh   (from anywhere inside the repo)
+# Project-only exclusions (e.g. generated screen docs that are never meant
+# to be indexed) go in a repo-root `.doc-health-ignore` file, one path per
+# line, relative to the repo root (`#` comments allowed) — never hand-edit
+# this script per project; that drift never makes it back into the kit.
 
 set -uo pipefail
 
@@ -25,11 +29,22 @@ if [ ! -f "$INDEX" ] && [ -f "core/docs/index.md" ]; then
   SEARCH_ROOT="core"
 fi
 
+EXTRA_PRUNE=""
+IGNORE_FILE=".doc-health-ignore"
+if [ -f "$IGNORE_FILE" ]; then
+  while IFS= read -r ignore_line; do
+    ignore_line="${ignore_line%%#*}"
+    ignore_line="$(printf '%s' "$ignore_line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    [ -z "$ignore_line" ] && continue
+    EXTRA_PRUNE="$EXTRA_PRUNE -o -path ./${ignore_line#./}"
+  done < "$IGNORE_FILE"
+fi
+
 MD_FILES="$(
   find "$SEARCH_ROOT" \
     \( -path ./.git -o -path ./.opencode -o -path ./.agents \
        -o -path ./.codex -o -path ./.claude -o -name node_modules \
-       -o -name .next \) \
+       -o -name .next $EXTRA_PRUNE \) \
     -prune -o -name '*.md' -print | sed 's|^\./||'
 )"
 

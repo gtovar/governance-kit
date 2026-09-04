@@ -21,7 +21,7 @@ Portable governance kit for AI-assisted projects. The equivalent of installing a
 | Canonical index | `docs/index.md` (pre-indexed; anti ghost-doc rule) | per project |
 | Fixed-structure templates | `docs/templates/` (15) | per project |
 | Deterministic checks | `scripts/` (governance-audit, doc-health, comment-hygiene, learning-capture, check-registry, verify-votes) | per project |
-| Skills | `decision-expander`, `governance-gatekeeper`, `governance-reviewer`, `useful-comments-reviewer`, `documentation-governance` | vendored to `.opencode/skills/` and `.agents/skills/` per project (optional: global per machine) |
+| Skills | `decision-expander`, `governance-gatekeeper`, `governance-reviewer`, `useful-comments-reviewer`, `documentation-governance` | vendored to `.opencode/skills/` and `.agents/skills/` per project always; to `.claude/skills/` per project with `--adapter claude\|all` (Claude Code does not read `.agents/skills/`); optional: global per machine (`install.sh global` now also seeds `~/.claude/skills/`) |
 | Reviewer agent | `.opencode/agent/reviewer.md`; optional `.codex/agents/reviewer.md` with `--adapter codex` | per project |
 | Git hook (optional) | `commit-msg.sh` (Conventional Commits, advisory) | per project, `--with-hooks` |
 
@@ -42,6 +42,14 @@ cd governance-kit
 ./bin/install.sh /path/to/project --adapter claude|codex|all
 ./bin/install.sh global                                  # optional per-machine skills
 ```
+
+- **If the project is worked with Claude Code, always pass `--adapter claude`
+  (or `--adapter all`).** Claude Code reads `AGENTS.md` on its own either way,
+  but without the adapter's `.claude/settings.json` there is no
+  `SessionStart`/`Stop` hook — the advisory kit-update check and the
+  doc-health-on-close check then depend entirely on the agent remembering to
+  run the `session_rituals.md` steps by itself every session, which drifts
+  silently over a long-running project.
 
 - **Portability**: the default mode vendors the same skills to `.opencode/skills/` and Codex's repo-local `.agents/skills/` path → everything travels with the project repo, zero machine-state dependency. `global` is an optional per-machine shortcut, not a requirement.
 - **Idempotent**: never overwrites a project's existing files.
@@ -168,6 +176,57 @@ workflow distinguish process references from executable frontiers. The advisory
 governance audit blocks the mechanically verifiable cycle where a Next action
 only consults `PROJECT_MAP.md` while that map declares `CURRENT_STAGE.md`
 authoritative.
+
+**DONE (v0.4.0 — field feedback from a multi-day real install)**: reviewed a
+production consumer repository (foundation-profile install, several days of
+real sessions) for what the kit's own rituals actually produced versus what
+sat unused, and fixed what the evidence supported:
+- Backported the "Completion and decision protocol" (`AGENTS.md`) and its
+  "Completion and decision loop" (`session_rituals.md`) — both were
+  independently hand-patched into the consumer repo and never flowed back.
+- Added `docs/templates/pending_work_template.md`, generalizing a
+  locally-invented deferred-work ledger the kit had no template for.
+- `scripts/doc-health.sh` now reads an optional repo-root
+  `.doc-health-ignore` file instead of requiring a hand-patched script copy
+  per project to exclude generated-doc paths.
+- Routed `docs/instruction-registry.json` changes to `check-registry.py` in
+  the constitution's activity matrix — previously reachable only through the
+  production-profile CI workflow, so a foundation/implementation install
+  never validated it.
+- Gave `verify_votes.py` a real caller: an "Adversarial verification"
+  procedure in the reviewer skill/agents (`findings.json`/`votes.json` →
+  panel verdict) for disputed or release-blocking BLOCKER findings —
+  previously shipped with zero producer anywhere in the kit.
+- Tied the `learning_capture.md` trigger to the close ritual's mandatory
+  "what was learned" bullet instead of leaving it to spontaneous mid-session
+  judgment, which measurably never fired in the reviewed repo.
+- `bin/install.sh` and the README now flag explicitly when `--adapter claude`
+  is skipped: without it, Claude Code has no `SessionStart`/`Stop` hooks, so
+  the advisory kit-update check and doc-health-on-close depend entirely on
+  the agent remembering the ritual by itself — the reviewed repo had silently
+  run three minor versions behind for exactly this reason.
+- Fixed the real reason `governance-reviewer`, `governance-gatekeeper`,
+  `useful-comments-reviewer`, and `documentation-governance` never fired in
+  the reviewed repo: the installer only ever wrote skills to
+  `.opencode/skills/` and `.agents/skills/` — never `.claude/skills/`, which
+  is where Claude Code actually discovers project skills. `decision-expander`
+  worked there only because that one machine happened to have it separately
+  under `~/.claude/skills/` already; the other four were never discoverable
+  by Claude Code at all. `--adapter claude|all` now also vendors into
+  `.claude/skills/`, and `install.sh global` now seeds `~/.claude/skills/`.
+
+**Migration limits for existing installs updating to v0.4.0:** `install.sh
+update` never overwrites a file you have hand-edited (verified: it reports
+`customized — kept`). If your project independently patched in something this
+release now ships upstream — a "Completion and decision protocol" section in
+`AGENTS.md`/`session_rituals.md`, a hardcoded `doc-health.sh` path exclusion —
+`update` will report that file as customized and leave your version in place;
+it will not merge the two. Diff your version against the new kit source by
+hand and reconcile deliberately, especially for `doc-health.sh`, since the
+kit's new mechanism (an optional `.doc-health-ignore` file) is not the same
+shape as a hand-added `-path` exclusion. Existing projects without `--adapter
+claude` will not retroactively get `.claude/skills/`; re-run `install.sh
+<project> --adapter claude` to add it (idempotent, additive only).
 
 **READY (v0.3.0 release)**: circular-frontier guard, release readiness, default official-source
 discovery for new installations, and agent-guided source and integration-target

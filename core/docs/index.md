@@ -39,6 +39,7 @@
 - [api_reference_template.md](templates/api_reference_template.md)
 - [quickstart_template.md](templates/quickstart_template.md)
 - [seeders.guia.md](templates/seeders.guia.md)
+- [pending_work_template.md](templates/pending_work_template.md)
 
 ## Entry
 

@@ -46,6 +46,27 @@ For findings that may be reconciled, classify the recommended action as
 
 If no findings exist, say so explicitly and state which checks passed.
 
+## Adversarial verification (disputed or high-stakes BLOCKER findings)
+
+For a BLOCKER finding whose confidence is genuinely disputed, or before it
+blocks a release-readiness or production-profile gate, do not self-declare it
+"verified". Get two more independent reviews of the same finding (fresh
+context each pass), then compute the panel verdict deterministically:
+
+1. Write the candidate(s) to `<run_dir>/findings.json`:
+   `{"candidates": [{"id": "F1", "severity": "BLOCKER", ...}]}`.
+2. Record each independent pass's true/false vote per candidate in
+   `<run_dir>/votes.json`:
+   `{"rounds": {"F1": {"panel": {"true": 2, "false": 1}}}}`.
+3. Run `python3 scripts/verify_votes.py <run_dir>`. It writes
+   `verification.json`: a finding needs >= 2/3 true votes to count as
+   verified (HIGH at 3/3, MEDIUM at 2/3); anything else is `refuted` or
+   `unverified` and must not be reported as a confirmed BLOCKER.
+4. Report the verified set from `verification.json`, not a personal recount.
+
+Skip this for ordinary findings — it exists for genuinely contested or
+release-blocking claims, not as mandatory overhead on every review.
+
 ## Rules
 
 - Do not modify any file. You are read-only.
