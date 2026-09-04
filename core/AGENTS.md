@@ -93,6 +93,7 @@ The documents below are installed in this repository and are binding when their 
 | Doc health | `scripts/doc-health.sh` — must be clean before closing a work block; add project-only exclusions via `.doc-health-ignore`, never hand-edit the script |
 | Instruction registry (`docs/instruction-registry.json`) | `scripts/check-registry.py` — must pass before closing a change to the registry |
 | Deferred, found-but-out-of-scope, or authorized-but-not-yet-started work | `docs/templates/pending_work_template.md` — status-tagged ledger; do not silently drop or silently fix a finding outside the current frontier |
+| Canonical log/state file growth (`Sprint_Log.md`, `PROJECT_STATE.md`, `README_REENTRY.md`, `docs/PENDING_WORK.md`, `LEARNING_CAPTURE_INBOX.md`) | `scripts/log-hygiene.sh check` — advisory size thresholds; `archive` moves old dated entries out of the active file, never shrinks individual entries |
 | Session start / re-entry | `docs/session_rituals.md` (start ritual) + `governance-gatekeeper` skill (intent routing) |
 | Kit update check | `scripts/governance-kit-update.py check` — advisory GitHub Release discovery; inspect and approve before applying |
 | Session close / handoff | `docs/session_rituals.md` (close ritual) + Handoff section below |

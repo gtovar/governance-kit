@@ -182,6 +182,16 @@ cmd_project() {
     add "$script_dest/learning-capture.sh"
   fi
 
+  # Deterministic log-hygiene checker/archiver
+  if [ -e "$script_dest/log-hygiene.sh" ]; then
+    skip "$script_dest/log-hygiene.sh"
+  else
+    mkdir -p "$script_dest"
+    cp "$KIT_DIR/scripts/log-hygiene.sh" "$script_dest/log-hygiene.sh"
+    chmod +x "$script_dest/log-hygiene.sh"
+    add "$script_dest/log-hygiene.sh"
+  fi
+
   # Deterministic governance checks and adversarial verification
   for py in governance-audit.py check-registry.py verify_votes.py governance-kit-update.py; do
     if [ -e "$script_dest/$py" ]; then

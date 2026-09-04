@@ -88,9 +88,14 @@ A read-only re-entry with no state change does not trigger this ritual.
 3. Run tests if applicable (guard rail).
 4. If contracts changed (API/events), update those docs before closing.
 5. Run `scripts/doc-health.sh` — must be clean.
-6. Record newly changed open decisions in `CURRENT_STAGE.md` and declare one
+6. Run `scripts/log-hygiene.sh check` — advisory. A finding does not block
+   closing; if it recommends archiving, treat that as an open item for a
+   deliberate future block, not something to run reflexively mid-close (the
+   pre-archive cross-reference check in the script's own usage notes needs
+   real attention, not a rushed pass at the end of an unrelated session).
+7. Record newly changed open decisions in `CURRENT_STAGE.md` and declare one
    actionable frontier using `Action`, `Target`, and `Done when`.
-7. After a successful integration, perform the advisory local branch lifecycle
+8. After a successful integration, perform the advisory local branch lifecycle
    review in `docs/git_hygiene.md`. Report candidates only; a local-branch
    deletion requires a separate explicit human instruction.
 

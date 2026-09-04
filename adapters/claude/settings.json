@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'bash scripts/doc-health.sh 2>/dev/null || true'",
+            "command": "bash -c 'bash scripts/doc-health.sh 2>/dev/null || true; bash scripts/log-hygiene.sh check 2>/dev/null || true'",
             "timeout": 20
           }
         ]

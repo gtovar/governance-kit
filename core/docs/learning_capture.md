@@ -43,3 +43,14 @@ scripts/learning-capture.sh "<repo_scope>" "<title>" "<trigger>" "<lesson>" "<re
 ```
 
 Append al inbox sin tocar el resto del archivo. Para capturas con más contexto (decisión arquitectónica), usar ADR/DDR en su lugar.
+
+## Graduación / archivado
+
+El inbox es una zona de tránsito, no un archivo permanente. Cuando
+`scripts/log-hygiene.sh check` marca más de 20 entradas, archiva las más
+viejas con `scripts/log-hygiene.sh archive LEARNING_CAPTURE_INBOX.md` — mueve
+las entradas fuera del inbox activo a `LEARNING_CAPTURE_INBOX_ARCHIVE.md` sin
+perder ninguna (el archivo de archivo se indexa en `docs/index.md` la primera
+vez que se crea). Una entrada ya promovida (a Anki, a un doc formal, o a un
+ADR) es candidata inmediata a archivarse aunque el inbox no haya llegado al
+umbral — no hace falta esperar.

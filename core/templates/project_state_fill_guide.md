@@ -68,7 +68,7 @@ END OF FILE
 ## 2. Hard Rules
 
 - **Only 4 triggers to update**: (1) a user story changes status; (2) architecture really changes (routes, services, contracts, containers, files); (3) a critical test changes project state; (4) a real technical component is added. **Never** update for opinions, plans, ideas, or wishes.
-- **Snapshot semantics**: every edit is a complete snapshot (rewrite the full state, not only the diff). Previous version goes to the version log or history.
+- **Snapshot semantics**: every edit is a complete snapshot (rewrite the full state, not only the diff). Previous version goes to the version log or history. If this file exceeds ~400 lines (`scripts/log-hygiene.sh check` flags it), that is a signal this rule is being violated — narrative or resolved history is accumulating instead of being replaced. Fix by rewriting the file as a current snapshot, not by archiving (this file has no dated ledger entries to move; the fix is discipline, not storage).
 - **One single next action**: end always with one instruction realizable in 5–15 minutes. Lists of 3/5/10 steps are forbidden.
 - **Evidence-anchored**: every HU claims evidence (files, tests, endpoints). Forbidden: "almost ready", "might be finished". No evidence → not DONE. ("Lying to the future" is a governance failure.)
 - **Coordinates**: exact identifiers for files, endpoints, env vars, tests, commits.

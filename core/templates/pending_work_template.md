@@ -33,6 +33,18 @@ work; the current phase and immediate action remain in
 - When you instantiate this template as `docs/PENDING_WORK.md` (or an
   equivalent name), add it to `docs/index.md` in the same change — an
   unindexed doc fails `scripts/doc-health.sh`'s ghost-doc check.
+- A Resolved/Fixed entry that no longer informs any currently open item moves,
+  verbatim, to `docs/PENDING_WORK_ARCHIVE.md` under the same area heading, in
+  the same change that archives it. This is manual (entries are grouped by
+  area, not by date, so `scripts/log-hygiene.sh archive` — built for
+  date-headed logs — does not apply here); `scripts/log-hygiene.sh check`
+  flags this file when it exceeds ~300 lines as a prompt to do that review.
+
+## Archive convention (once `docs/PENDING_WORK_ARCHIVE.md` exists)
+
+Add a line to this file's own header: **Archive:** entries resolved before
+this ledger's current scope moved to `docs/PENDING_WORK_ARCHIVE.md` (link it,
+and add it to `docs/index.md` in the same change it is first created).
 
 ## <Area name>
 

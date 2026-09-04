@@ -79,7 +79,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "gtovar/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.2")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.5.0")
 
             audit = target / "scripts/governance-audit.py"
             self.assertTrue(audit.is_file())
@@ -100,7 +100,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.2")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.5.0")
 
     def test_reinstall_for_an_adapter_does_not_reset_customized_file_baselines(
         self,

@@ -20,7 +20,7 @@ Portable governance kit for AI-assisted projects. The equivalent of installing a
 | Documentation policies | `docs/ADR_POLICY.md`, `docs/documentation_rules.md` (G0–G3 gates + DDR + scoring), `docs/git_hygiene.md`, `docs/good_practices.md`, `docs/session_rituals.md`, `docs/TESTING_STRATEGY.md`, `docs/learning_capture.md`, `docs/instruction-registry.json` | per project |
 | Canonical index | `docs/index.md` (pre-indexed; anti ghost-doc rule) | per project |
 | Fixed-structure templates | `docs/templates/` (15) | per project |
-| Deterministic checks | `scripts/` (governance-audit, doc-health, comment-hygiene, learning-capture, check-registry, verify-votes) | per project |
+| Deterministic checks | `scripts/` (governance-audit, doc-health, log-hygiene, comment-hygiene, learning-capture, check-registry, verify-votes) | per project |
 | Skills | `decision-expander`, `governance-gatekeeper`, `governance-reviewer`, `useful-comments-reviewer`, `documentation-governance` | vendored to `.opencode/skills/` and `.agents/skills/` per project always; to `.claude/skills/` per project with `--adapter claude\|all` (Claude Code does not read `.agents/skills/`); optional: global per machine (`install.sh global` now also seeds `~/.claude/skills/`) |
 | Reviewer agent | `.opencode/agent/reviewer.md`; optional `.codex/agents/reviewer.md` with `--adapter codex` | per project |
 | Git hook (optional) | `commit-msg.sh` (Conventional Commits, advisory) | per project, `--with-hooks` |
@@ -205,6 +205,47 @@ sat unused, and fixed what the evidence supported:
   the advisory kit-update check and doc-health-on-close depend entirely on
   the agent remembering the ritual by itself — the reviewed repo had silently
   run three minor versions behind for exactly this reason.
+**DONE (v0.5.0 — accumulation-without-pruning fix, decision-expander-gated)**:
+matina's real data showed the kit's canonical logs grow without bound —
+`Sprint_Log.md` reached 1.2MB/21k lines in ~1 week (76% of commits touch it),
+`PROJECT_STATE.md` reached 112KB despite being defined as a rewritten
+snapshot. Investigated through a full decision-expander expansion + two
+evaluated plan iterations (see the session record) before implementing, since
+the first-draft fix (cap individual Sprint_Log entries at ~20 lines) was
+directly contradicted by real data: median entry is 50 lines, and
+`PENDING_WORK.md` actively points *into* Sprint_Log.md for full technical
+detail — Sprint_Log is the canonical record by design, not a pointer-only
+ledger, so shrinking entries would have fought a working information
+architecture. Shipped instead:
+- `scripts/log-hygiene.sh check` — advisory size thresholds for
+  `PROJECT_STATE.md`/`README_REENTRY.md` (400/300 lines — these should be
+  rewritten as compact snapshots, not accumulated), `docs/PENDING_WORK.md`
+  (300 lines), `Sprint_Log.md` (1500 lines/100KB), `LEARNING_CAPTURE_INBOX.md`
+  (20 entries). No per-entry length check.
+- `scripts/log-hygiene.sh archive <file> [--keep N]` — moves all but the last
+  N dated (`## `/`### YYYY-MM-DD`) entries of `Sprint_Log.md` or
+  `LEARNING_CAPTURE_INBOX.md` to `<stem>_ARCHIVE.<ext>`, write-before-truncate,
+  leaves a one-line pointer, reminds to index the archive file if new.
+  Verified byte-for-byte lossless against a real 1.2MB production
+  `Sprint_Log.md` copy, including a `--keep 0` edge case that was found broken
+  (corrupted `sed` ranges) during that same real-data test and fixed before
+  shipping. `docs/PENDING_WORK.md` gets a manual archival rule instead (its
+  entries are grouped by area, not date — not safe to automate).
+- Documented, not automated, an inherent limit: archiving can orphan a prose
+  cross-reference from `PENDING_WORK.md`/`CURRENT_STAGE.md` into the archived
+  range (`doc-health.sh` only catches broken markdown links, not prose).
+  `archive` prints a mandatory pre-check reminder instead of pretending to
+  detect this reliably.
+- Wired into `adapters/claude/settings.json`'s `Stop` hook alongside
+  `doc-health.sh`, and into the close ritual (advisory, not blocking) —
+  otherwise this would repeat the exact "shipped but never triggered" pattern
+  found in `verify_votes.py`/`check-registry.py`/`.claude/skills` earlier in
+  the same review.
+- `sprint_log_template.md` reframed: Sprint_Log is the canonical detail
+  store, size is controlled by archiving old entries, not by writing thinner
+  ones. 42 tests total (15 new for `log-hygiene.sh`, covering real and
+  synthetic data, edge cases, and the `--keep 0` regression).
+
 **FIXED (v0.4.1 — found while applying v0.4.0 to the reviewed project)**:
 `bin/install.sh`'s final manifest step used to unconditionally rehash every
 kit-managed file against its current on-disk content, including on a re-run

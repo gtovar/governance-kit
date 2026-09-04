@@ -1,5 +1,5 @@
 {
-  "version": "0.6.0",
+  "version": "0.7.0",
   "notes": {
     "role": "Declarative governance registry for human review and policy visibility.",
     "runtime_authority": "Active enforcement lives in AGENTS.md, the routing matrix, hooks, and deterministic scripts. Editing this file alone does not change runtime behavior.",
@@ -78,6 +78,18 @@
       "requirement": { "doc_health_must_be_clean": true },
       "severity": "block",
       "vehicle": "scripts/doc-health.sh (deterministic)"
+    },
+    {
+      "id": "LOG_GROWTH_MUST_BE_CHECKED",
+      "type": "workflow",
+      "category": "documentation",
+      "trigger": { "keywords": ["close", "commit", "ready", "done"] },
+      "requirement": {
+        "must_run_log_hygiene_check": true,
+        "archiving_requires_manual_cross_reference_review": true
+      },
+      "severity": "warn",
+      "vehicle": "scripts/log-hygiene.sh (deterministic)"
     },
     {
       "id": "CLOSE_SESSION_REQUIRES_NEXT_STEP",
