@@ -79,7 +79,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "gtovar/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.1")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.2")
 
             audit = target / "scripts/governance-audit.py"
             self.assertTrue(audit.is_file())
@@ -100,7 +100,7 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 manifest["distribution"]["github_repository"],
                 "example/governance-kit",
             )
-            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.1")
+            self.assertEqual(manifest["distribution"]["installed_version"], "0.4.2")
 
     def test_reinstall_for_an_adapter_does_not_reset_customized_file_baselines(
         self,
@@ -139,6 +139,45 @@ class InstallUpdateIntegrationTest(unittest.TestCase):
                 "update must never overwrite a file customized before a "
                 "later --adapter/--profile re-install",
             )
+
+    def test_update_syncs_claude_adapter_only_when_already_installed(self) -> None:
+        # Gap found alongside the baseline-reset bug: .claude/skills/*,
+        # CLAUDE.md, and .claude/settings.json were never in update.py's
+        # collect_pairs at all, so a project that opted into --adapter claude
+        # would never receive future kit changes to those files through
+        # `update` — permanently frozen at install time with no report even
+        # mentioning them. Fix must be opt-in: a project that never installed
+        # the Claude adapter must not have it silently created by `update`.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with_claude = Path(temp_dir) / "with-claude"
+            without_claude = Path(temp_dir) / "without-claude"
+            self.run_installer(str(with_claude), "--adapter", "claude")
+            self.run_installer(str(without_claude))
+
+            manifest = json.loads(
+                (with_claude / ".governance-kit/manifest.json").read_text()
+            )
+            self.assertIn(".claude/settings.json", manifest["files"])
+            self.assertIn(
+                ".claude/skills/governance-reviewer/SKILL.md", manifest["files"]
+            )
+
+            skill_source = KIT_ROOT / "skills/governance-reviewer/SKILL.md"
+            original_content = skill_source.read_text()
+            try:
+                skill_source.write_text(original_content + "\nupdate-sync-probe\n")
+
+                self.run_updater("update", str(KIT_ROOT), str(with_claude))
+                synced = (
+                    with_claude / ".claude/skills/governance-reviewer/SKILL.md"
+                ).read_text()
+                self.assertIn("update-sync-probe", synced)
+
+                self.run_updater("update", str(KIT_ROOT), str(without_claude))
+                self.assertFalse((without_claude / "CLAUDE.md").exists())
+                self.assertFalse((without_claude / ".claude").exists())
+            finally:
+                skill_source.write_text(original_content)
 
     def test_configure_update_migrates_a_legacy_install(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

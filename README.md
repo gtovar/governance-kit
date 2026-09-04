@@ -225,6 +225,20 @@ flag on an existing install before this fix, treat any file `update` reports
 as "safe to update" with suspicion — verify it against your own git history
 before trusting it.**
 
+**FIXED (v0.4.2 — found by asking "what else did that bug-hunting miss?")**:
+`update.py`'s `collect_pairs()` never listed `.claude/skills/*`, `CLAUDE.md`,
+or `.claude/settings.json` (nor the Codex reviewer agent) at all — not
+"protected," just entirely absent from what the updater tracks. A project
+that opted into `--adapter claude` would never receive future kit
+improvements to those files through `install.sh update` or
+`governance-kit-update.py apply`; they'd stay frozen at whatever the kit
+shipped on the day `--adapter claude` was first run, with no report even
+mentioning them as stale. Fixed by making adapter pairs conditional on the
+adapter's own marker file already existing in the target (`CLAUDE.md` for
+Claude, `.codex/agents/reviewer.md` for Codex) — synced automatically once
+opted in, never silently created for a project that skipped the adapter.
+Regression-tested (`test_update_syncs_claude_adapter_only_when_already_installed`).
+
 - Fixed the real reason `governance-reviewer`, `governance-gatekeeper`,
   `useful-comments-reviewer`, and `documentation-governance` never fired in
   the reviewed repo: the installer only ever wrote skills to

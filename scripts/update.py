@@ -50,9 +50,27 @@ BASE_PAIRS = [
 
 SKILL_DEST_ROOTS = (".opencode/skills", ".agents/skills")
 
+# Adapter-specific pairs are opt-in (installed only with --adapter claude/all
+# or --adapter codex/all). They must stay conditional on a marker file that
+# already exists in the target, or a plain `update` would silently opt a
+# project into an adapter it never asked for (Claude's SessionStart/Stop
+# hooks run shell commands automatically).
+CLAUDE_MARKER = "CLAUDE.md"
+CLAUDE_PAIRS = [
+    ("adapters/claude/CLAUDE.md", "CLAUDE.md"),
+    ("adapters/claude/settings.json", ".claude/settings.json"),
+]
+CLAUDE_SKILL_DEST_ROOT = ".claude/skills"
+CODEX_MARKER = ".codex/agents/reviewer.md"
+CODEX_PAIRS = [("adapters/codex/agents/reviewer.md", ".codex/agents/reviewer.md")]
 
-def collect_pairs(kit_root: Path) -> list[tuple[str, str]]:
+
+def collect_pairs(kit_root: Path, target: Path) -> list[tuple[str, str]]:
     pairs = list(BASE_PAIRS)
+    if (target / CLAUDE_MARKER).exists():
+        pairs.extend(CLAUDE_PAIRS)
+    if (target / CODEX_MARKER).exists():
+        pairs.extend(CODEX_PAIRS)
     docs_root = kit_root / "core/docs"
     for doc in sorted(docs_root.rglob("*")):
         if doc.is_file():
@@ -68,11 +86,14 @@ def collect_pairs(kit_root: Path) -> list[tuple[str, str]]:
             continue  # kit-internal maintenance tools, not project scripts
         if script.suffix in {".sh", ".py"}:
             pairs.append((f"scripts/{script.name}", f"scripts/{script.name}"))
+    skill_dest_roots = SKILL_DEST_ROOTS
+    if (target / CLAUDE_MARKER).exists():
+        skill_dest_roots = skill_dest_roots + (CLAUDE_SKILL_DEST_ROOT,)
     for skill_dir in sorted((kit_root / "skills").iterdir()):
         for p in sorted(skill_dir.rglob("*")):
             if p.is_file():
                 rel = p.relative_to(skill_dir)
-                for dest_root in SKILL_DEST_ROOTS:
+                for dest_root in skill_dest_roots:
                     pairs.append(
                         (
                             f"skills/{skill_dir.name}/{rel}",
@@ -138,7 +159,7 @@ def cmd_manifest(kit_root: Path, target: Path, repository: str | None = None) ->
         manifest["distribution"] = previous["distribution"]
     configure_distribution(manifest, kit_root, repository)
     added = 0
-    for src, dest in collect_pairs(kit_root):
+    for src, dest in collect_pairs(kit_root, target):
         if dest in manifest["files"]:
             continue
         dest_path = target / dest
@@ -181,7 +202,7 @@ def classify_update(kit_root: Path, target: Path) -> dict[str, list[str]]:
     manifest = load_manifest(target)
     entries = manifest.get("files", {})
     result = {"safe": [], "customized": [], "new": [], "unknown": [], "protected": [], "conflicts": []}
-    for src, dest in collect_pairs(kit_root):
+    for src, dest in collect_pairs(kit_root, target):
         kit_path = kit_root / src
         dest_path = target / dest
         if dest in ALWAYS_PROTECTED:
@@ -219,7 +240,7 @@ def cmd_preview(kit_root: Path, target: Path) -> int:
 def cmd_update(kit_root: Path, target: Path) -> int:
     manifest = load_manifest(target)
     entries = manifest.get("files", {})
-    pairs = collect_pairs(kit_root)
+    pairs = collect_pairs(kit_root, target)
 
     updated, customized, installed, skipped, conflicts, protected = [], [], [], [], [], []
 
