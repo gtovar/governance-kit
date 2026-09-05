@@ -312,7 +312,9 @@ cmd_project() {
     log "      entirely on the agent remembering the session_rituals.md steps."
   fi
 
-  log "done. A new agent should now enter '$target', read AGENTS.md and docs/process/, and know how to work."
+  log "bootstrap templates installed in '$target'."
+  log "next: personalize README.md and docs/process/CURRENT_STAGE.md with the real project purpose and one actionable F0 frontier."
+  log "done when: python3 scripts/governance-audit.py reports no template blockers."
 
   # Record installation manifest (enables safe updates)
   manifest_args=(manifest "$KIT_DIR" "$target")

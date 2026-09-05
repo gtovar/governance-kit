@@ -246,6 +246,20 @@ architecture. Shipped instead:
   ones. 42 tests total (15 new for `log-hygiene.sh`, covering real and
   synthetic data, edge cases, and the `--keep 0` regression).
 
+**DONE (v0.5.1 — honest fresh-install handoff, decision-expander-gated)**:
+a clean installation necessarily leaves project-owned bootstrap templates
+unresolved. The installer previously ended by claiming that a new agent could
+already know how to work, while `governance-audit.py` correctly reported the
+unresolved README and current-stage fields as blockers. The decision record
+kept the templates and blocker semantics intact because the kit cannot infer a
+project's purpose or frontier. Plan 1 changed only the handoff, added a
+regression test, and prepared the patch release; its evaluation found no
+material objection because the audit remains the independent completion check.
+`bin/install.sh` now names the exact bootstrap action (`README.md` and
+`docs/process/CURRENT_STAGE.md`) and its observable completion condition (the
+audit has no template blockers). Existing projects need no migration:
+re-running the installer remains additive and never overwrites their state.
+
 **FIXED (v0.4.1 — found while applying v0.4.0 to the reviewed project)**:
 `bin/install.sh`'s final manifest step used to unconditionally rehash every
 kit-managed file against its current on-disk content, including on a re-run
@@ -371,6 +385,13 @@ contract is validated after rollout in a fresh project session.
 - **v0.3.0 publication:** verify the current GitHub Release state, then obtain
   authorization to tag, push, and publish `v0.3.0` with the documented legacy
   bootstrap limit.
+
+## v0.5.1 Release Notes
+
+- Fresh installs now state that they contain bootstrap templates and identify
+  the required personalization and audit criterion before governed work begins.
+- No project-owned file is changed by an update; existing installations require
+  no migration.
 
 ## v0.3.0 Release Notes
 
