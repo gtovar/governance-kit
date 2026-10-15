@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "^(startup|resume)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/governance-update.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking governance-kit releases"
+          }
+        ]
+      }
+    ]
+  }
+}

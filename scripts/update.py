@@ -62,7 +62,11 @@ CLAUDE_PAIRS = [
 ]
 CLAUDE_SKILL_DEST_ROOT = ".claude/skills"
 CODEX_MARKER = ".codex/agents/reviewer.md"
-CODEX_PAIRS = [("adapters/codex/agents/reviewer.md", ".codex/agents/reviewer.md")]
+CODEX_PAIRS = [
+    ("adapters/codex/agents/reviewer.md", ".codex/agents/reviewer.md"),
+    ("adapters/codex/hooks.json", ".codex/hooks.json"),
+    ("adapters/codex/hooks/governance-update.py", ".codex/hooks/governance-update.py"),
+]
 
 
 def collect_pairs(kit_root: Path, target: Path) -> list[tuple[str, str]]:
@@ -157,13 +161,19 @@ def cmd_manifest(kit_root: Path, target: Path, repository: str | None = None) ->
     manifest = {"version": 3, "files": dict(previous.get("files", {}))}
     if "distribution" in previous:
         manifest["distribution"] = previous["distribution"]
+    previous_version = manifest.get("distribution", {}).get("installed_version")
     configure_distribution(manifest, kit_root, repository)
+    if previous.get("files"):
+        # An additive reinstall does not upgrade the existing managed files.
+        manifest["distribution"]["installed_version"] = previous_version or "0.0.0"
     added = 0
     for src, dest in collect_pairs(kit_root, target):
         if dest in manifest["files"]:
             continue
         dest_path = target / dest
         if dest_path.is_file():
+            if (src, dest) in CODEX_PAIRS and sha256(dest_path) != sha256(kit_root / src):
+                continue
             manifest["files"][dest] = {"src": src, "hash": sha256(dest_path)}
             added += 1
     save_manifest(target, manifest)

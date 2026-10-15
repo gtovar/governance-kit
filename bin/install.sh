@@ -302,6 +302,18 @@ cmd_project() {
       cp "$KIT_DIR/adapters/codex/agents/reviewer.md" "$codex_dest/reviewer.md"
       add "$codex_dest/reviewer.md"
     fi
+    local codex_file
+    for codex_file in hooks.json hooks/governance-update.py; do
+      if [ -e "$target/.codex/$codex_file" ]; then
+        skip "$target/.codex/$codex_file"
+      else
+        mkdir -p "$(dirname "$target/.codex/$codex_file")"
+        cp "$KIT_DIR/adapters/codex/$codex_file" "$target/.codex/$codex_file"
+        add "$target/.codex/$codex_file"
+      fi
+    done
+    log "note: review and trust the governance-kit SessionStart hook in Codex (CLI: /hooks)."
+    log "      Existing hooks.json files are kept; merge the kit hook explicitly if needed."
   fi
 
   if [ "$ADAPTER" != "claude" ] && [ "$ADAPTER" != "all" ]; then

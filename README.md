@@ -54,6 +54,17 @@ cd governance-kit
 - **Portability**: the default mode vendors the same skills to `.opencode/skills/` and Codex's repo-local `.agents/skills/` path → everything travels with the project repo, zero machine-state dependency. `global` is an optional per-machine shortcut, not a requirement.
 - **Idempotent**: never overwrites a project's existing files.
 - Codex and OpenCode discover project skills from their native paths. Restart the agent if newly installed skills do not appear.
+- For Codex startup notices, use `--adapter codex` (or `all`). This installs
+  `.codex/hooks.json` and `.codex/hooks/governance-update.py`. Review and trust
+  the hook in Codex before it runs (CLI: `/hooks`); project configuration must
+  also be trusted and hooks enabled. On startup/resume, the hook calls the
+  installed checker and surfaces its result through `systemMessage`: a newer
+  published release, no newer publication, or an unavailable/unconfigured check.
+  It never applies an update. Existing hook configurations are preserved and
+  require an explicit merge with `adapters/codex/hooks.json` when they differ.
+  The command requires Git and Python 3 and resolves the project from the Git
+  root, including when Codex starts in a subdirectory. See the
+  [Codex hook contract](https://learn.chatgpt.com/docs/hooks).
 - For new empty projects, additionally: `git init`, personalize `docs/process/CURRENT_STAGE.md` (project name, real phase), and write `README.md`.
 
 ## Distribution model (where governance lives and runs)
@@ -151,9 +162,32 @@ Reconcile governance findings.
 
 ## Roadmap
 
+**PREPARED (v0.6.0 — visible Codex update checks)**: the opt-in Codex adapter
+now connects the installed release checker to `SessionStart` and emits a UI
+warning from the real result. Tests cover version comparisons, failed checks,
+command execution from paths with spaces, safe reinstall, and opt-in updates.
+Adding an adapter preserves the previous recorded installed version; an
+additive reinstall is not an upgrade. Hook trust and an observed notice in
+the user's Codex interface remain the activation acceptance step. No roadmap
+phase was advanced and this version has not been published.
+The adapter was installed additively in Pulso on 2026-10-15: existing managed
+file contents and recorded version `0.1.1` were preserved. Its installed hook
+queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
+project-root resolution error; the corrected installed-entrypoint regression
+requires a successful release notice, not merely a generic failure message.
+
 **DONE (v1)**: universal layer + opencode + installer + full harvest (constitution, docs with declared vehicles, 15 templates, 5 skills, reviewer, hooks, doc-health, comment-hygiene, precedence, operating policy, portable distribution).
 
 **DONE (S2)**: `governance-gatekeeper` skill (executable intent router, 8 modes, interruption format), `session_rituals.md` (start/close rituals, mini-block, "revisa lógica", truth hierarchy), `learning_capture.md` + script, `TESTING_STRATEGY.md`.
+
+**DONE (2026-10-08 — testing evidence guidance)**: extended the existing
+`core/docs/TESTING_STRATEGY.md` with risk-relevant evidence questions
+(independence, behavioral fidelity, oracle strength, and defect sensitivity),
+regression-test evaluation at the lowest suitable level, a documented
+exception path, and limits on claims from passing runs. The questions guide
+judgment; they do not mandate four tests or a testing tool. The change is
+grounded in the Matina testing case and keeps the existing strategy as owner;
+no new process, skill, agent, or infrastructure was added.
 
 **DONE (S3)**: `instruction-registry.json` + schema (14 typed rules with severity and vehicle) + deterministic validator `check-registry.py`; adversarial verification `verify_votes.py` (3-voter panel, ≥2/3 quorum, "the model never self-declares verified"); PII hygiene + "5 dimensions of repo health" lens in the reviewer (check #12).
 
@@ -341,6 +375,13 @@ contract is validated after rollout in a fresh project session.
 
 ## Recorded decisions
 
+- **Codex update notice ownership (DDR):** extend the existing Codex adapter;
+  its hook delegates to the installed checker instead of adding a second
+  release client or an MCP server. README owns setup and migration guidance
+  (G0: implementation/tests; G1: existing owner; G2: no split; G3: no new doc).
+  The visible notice reflects a check against the recorded installation
+  version, not a full integrity audit. An unavailable check never means current.
+
 - **Reconciliation ownership:** extend `governance-gatekeeper` instead of adding
   another skill. `governance-reviewer` audits, `documentation-governance` routes
   owner documents, and the gatekeeper executes only authorized remediation.
@@ -367,6 +408,10 @@ contract is validated after rollout in a fresh project session.
 
 ## Open decisions
 
+- **Codex notice activation:** review/trust the installed hook and observe a
+  fresh startup/resume notice in Codex. Script/contract tests alone do not
+  establish rendering in the user's desktop interface.
+
 - **Legacy global skill migration:** `install.sh global` remains fail-safe and
   does not overwrite an existing user-level skill. Decide whether a future
   explicit migration command should replace or archive stale global copies;
@@ -385,6 +430,21 @@ contract is validated after rollout in a fresh project session.
 - **v0.3.0 publication:** verify the current GitHub Release state, then obtain
   authorization to tag, push, and publish `v0.3.0` with the documented legacy
   bootstrap limit.
+
+## v0.6.0 Release Notes
+
+- Opt-in Codex startup/resume hooks surface the installed checker's result as
+  a visible advisory warning. No update is applied automatically.
+- Migration: run `bin/install.sh <project> --adapter codex`, review/trust the
+  hook, and start or resume a session. Existing Codex adapters receive the new
+  files through safe update; existing custom hook configurations need a manual
+  merge. Hook trust is required after changes to the hook definition.
+- Additive reinstalls retain the recorded installed version and file baselines;
+  legacy manifests without a version retain an unknown `0.0.0` baseline.
+- Requires a Codex version supporting `SessionStart` and `systemMessage`, a
+  trusted project configuration, Git, Python 3, and the installed checker.
+  Local Codex CLI `0.162.1` exposes hooks enabled; desktop rendering acceptance
+  remains pending user hook trust and a fresh session.
 
 ## v0.5.1 Release Notes
 

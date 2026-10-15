@@ -64,6 +64,36 @@ Critical-flow default: require at least integration coverage; consider E2E when 
 4. A bug could hide behind mocking the wrong layer → strengthen the level.
 5. Change affects a documented stable contract → do not stop at unit tests.
 
+## Evidence Quality and Regression Tests
+
+Choose evidence that addresses the stated risk. For a material behavior claim,
+record the test or other verification that supports it and consider:
+
+- **Independence:** can the check run without relying on unrelated test order or
+  hidden state, where independence matters to the risk?
+- **Behavioral fidelity:** does it exercise the relevant contract, layer, or
+  user-visible behavior rather than a substitute that omits the failure path?
+- **Oracle strength:** would the assertion distinguish the correct behavior
+  from the plausible incorrect behavior?
+- **Defect sensitivity:** would the check fail if the targeted defect were
+  present? When this is uncertain and material, use a focused perturbation or
+  other discriminating check where practical.
+
+These are review questions, not four mandatory tests or tools. Select only the
+questions relevant to the risk and record material limitations.
+
+When fixing a defect, evaluate a regression test at the lowest suitable level
+that reproduces the observed failure. When feasible, observe that it fails
+before the fix and passes after it. If reproducing the failure is infeasible,
+unsafe, or would require a disproportionate test setup, record the reason and
+the alternative evidence. A regression test is not required when no stable,
+meaningful automated check can represent the defect; record `Regression test:
+none — <reason>` in the change record.
+
+A passing test run is evidence that the check completed with the observed
+result; it does not by itself establish broad coverage or absence of residual
+risk. Keep those claims within what the evidence supports.
+
 ## Tactical vs Policy Tooling
 
 - **Tactical**: introduced to validate one story or one narrow risk; not required by CI or repo policy; does not define the default for future work.
