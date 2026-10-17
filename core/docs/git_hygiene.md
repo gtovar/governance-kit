@@ -259,6 +259,41 @@ local or remote branch, uses `git branch -D`, pushes, prunes remotes, or alters
 branch protection. Run the suggested deletion command only after a separate,
 explicit human instruction naming the branch or branches.
 
+### Retiring a non-integrated local branch
+
+A branch whose tip is not an ancestor of the integration target is not a
+standard deletion candidate. Equal working trees, equivalent patches, or a
+deleted remote branch do not prove that its unique commit history is
+disposable.
+
+When the owner explicitly names a non-integrated local branch for retirement:
+
+1. Inspect its unique commits and tracked paths. Identify sensitive or personal
+   material before choosing a backup location; never publish an archive branch
+   or bundle that contains it.
+2. If its history or files must remain recoverable, create a Git bundle outside
+   the repository in an access-controlled, local-only location. If no such
+   location is available, keep the branch. Do not put the bundle in a synced or
+   published directory.
+3. Verify the bundle with `git bundle verify`. Then fetch its named branch into
+   a temporary bare repository and verify that the restored commit and tree IDs
+   exactly match the original branch. Run `git fsck --full --no-reflogs` on the
+   restored repository. A bundle that has not passed restoration verification
+   is not a substitute for the branch.
+4. Update the owning canonical documents with the local bundle path, branch tip,
+   and verification result. Do not record private file contents in those docs.
+5. Remove only the named local branch after the owner has explicitly authorized
+   that deletion. For a non-integrated branch, `git branch -D -- <name>` removes
+   the ref; it does not remove the verified bundle. Never force-push or delete a
+   remote ref as part of this local procedure.
+6. Verify that the branch ref is absent and that a fresh temporary restoration
+   from the bundle still yields the recorded commit and tree.
+
+This procedure preserves recoverability while allowing an obsolete local ref
+to be removed. It does not determine whether the branch's contents are valuable;
+that judgment must be grounded in the inspected history and the owner's stated
+disposition.
+
 ---
 
 ## Commit protocol (3 axes)
