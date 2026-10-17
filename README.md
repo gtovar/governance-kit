@@ -170,6 +170,9 @@ Adding an adapter preserves the previous recorded installed version; an
 additive reinstall is not an upgrade. Hook trust and an observed notice in
 the user's Codex interface remain the activation acceptance step. No roadmap
 phase was advanced and this version has not been published.
+The same release adds a verified local-bundle procedure for retiring an
+explicitly named, non-integrated local branch without discarding its recoverable
+history. It does not permit publishing sensitive archive contents.
 The adapter was installed additively in Pulso on 2026-10-15: existing managed
 file contents and recorded version `0.1.1` were preserved. Its installed hook
 queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
@@ -351,10 +354,15 @@ shape as a hand-added `-path` exclusion. Existing projects without `--adapter
 claude` will not retroactively get `.claude/skills/`; re-run `install.sh
 <project> --adapter claude` to add it (idempotent, additive only).
 
+**Migration limit for existing installs updating to v0.6.0:** the safe updater
+replaces `docs/git_hygiene.md` only when its installed contents still match the
+recorded kit baseline. Customized copies are kept and must be reconciled with
+the new non-integrated-branch retirement procedure manually. Project-owned
+`docs/process/` state remains protected from kit updates.
+
 **READY (v0.3.0 release)**: circular-frontier guard, release readiness, default official-source
 discovery for new installations, and agent-guided source and integration-target
-configuration are prepared. Publishing `v0.3.0` remains a separate authorized
-action.
+configuration were published as `v0.3.0` on 2026-09-03.
 
 **EXPERIMENTAL (release discovery)**: installed projects check their configured
 GitHub Releases source advisory at re-entry, preview a released snapshot, and
@@ -427,12 +435,14 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.3.0 publication:** verify the current GitHub Release state, then obtain
-  authorization to tag, push, and publish `v0.3.0` with the documented legacy
-  bootstrap limit.
+- **v0.6.0 publication:** complete the published-branch review and release
+  validation for the current source snapshot. The release is not published yet.
 
 ## v0.6.0 Release Notes
 
+- Git hygiene now documents how to retire an owner-named, non-integrated local
+  branch after its history is verified in a private local bundle. It does not
+  authorize remote deletion or publication of archived sensitive material.
 - Opt-in Codex startup/resume hooks surface the installed checker's result as
   a visible advisory warning. No update is applied automatically.
 - Migration: run `bin/install.sh <project> --adapter codex`, review/trust the
@@ -445,6 +455,9 @@ contract is validated after rollout in a fresh project session.
   trusted project configuration, Git, Python 3, and the installed checker.
   Local Codex CLI `0.162.1` exposes hooks enabled; desktop rendering acceptance
   remains pending user hook trust and a fresh session.
+- Existing customized `docs/git_hygiene.md` files are retained by safe update;
+  reconcile the new local-bundle retirement guidance manually. Project-owned
+  process state is not overwritten.
 
 ## v0.5.1 Release Notes
 
