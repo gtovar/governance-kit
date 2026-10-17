@@ -268,9 +268,11 @@ disposable.
 
 When the owner explicitly names a non-integrated local branch for retirement:
 
-1. Inspect its unique commits and tracked paths. Identify sensitive or personal
-   material before choosing a backup location; never publish an archive branch
-   or bundle that contains it.
+1. Inspect its unique commits and tracked paths. Search local hooks and scripts
+   for dependencies on the branch ref; preserve and test those protections
+   before removing or renaming the ref. Identify sensitive or personal material
+   before choosing a backup location; never publish an archive branch or bundle
+   that contains it.
 2. If its history or files must remain recoverable, create a Git bundle outside
    the repository in an access-controlled, local-only location. If no such
    location is available, keep the branch. Do not put the bundle in a synced or

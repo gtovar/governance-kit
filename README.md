@@ -162,14 +162,15 @@ Reconcile governance findings.
 
 ## Roadmap
 
-**PREPARED (v0.6.0 — visible Codex update checks)**: the opt-in Codex adapter
+**DONE (v0.6.0 — visible Codex update checks and safe archive retirement)**:
+the opt-in Codex adapter
 now connects the installed release checker to `SessionStart` and emits a UI
 warning from the real result. Tests cover version comparisons, failed checks,
 command execution from paths with spaces, safe reinstall, and opt-in updates.
 Adding an adapter preserves the previous recorded installed version; an
 additive reinstall is not an upgrade. Hook trust and an observed notice in
-the user's Codex interface remain the activation acceptance step. No roadmap
-phase was advanced and this version has not been published.
+the user's Codex interface remain the activation acceptance step. The release
+was published on 2026-10-16; no roadmap phase was advanced.
 The same release adds a verified local-bundle procedure for retiring an
 explicitly named, non-integrated local branch without discarding its recoverable
 history. It does not permit publishing sensitive archive contents.
@@ -178,6 +179,11 @@ file contents and recorded version `0.1.1` were preserved. Its installed hook
 queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
 project-root resolution error; the corrected installed-entrypoint regression
 requires a successful release notice, not merely a generic failure message.
+
+**PREPARED (v0.6.1 — preserve local safety guards when retiring a branch)**:
+the archive retirement procedure now requires checking whether local hooks or
+scripts rely on the branch ref and preserving/testing those protections before
+the ref is removed. The release is not published.
 
 **DONE (v1)**: universal layer + opencode + installer + full harvest (constitution, docs with declared vehicles, 15 templates, 5 skills, reviewer, hooks, doc-health, comment-hygiene, precedence, operating policy, portable distribution).
 
@@ -360,7 +366,7 @@ recorded kit baseline. Customized copies are kept and must be reconciled with
 the new non-integrated-branch retirement procedure manually. Project-owned
 `docs/process/` state remains protected from kit updates.
 
-**READY (v0.3.0 release)**: circular-frontier guard, release readiness, default official-source
+**DONE (v0.3.0 release)**: circular-frontier guard, release readiness, default official-source
 discovery for new installations, and agent-guided source and integration-target
 configuration were published as `v0.3.0` on 2026-09-03.
 
@@ -435,8 +441,17 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.6.0 publication:** complete the published-branch review and release
+- **v0.6.1 publication:** complete the published-branch review and release
   validation for the current source snapshot. The release is not published yet.
+
+## v0.6.1 Release Notes
+
+- The non-integrated branch retirement procedure now requires checking local
+  hooks and scripts that depend on the ref, and preserving/testing those guards
+  before branch removal.
+- Existing customized `docs/git_hygiene.md` files remain protected by safe
+  update and require a manual merge of the added guard-dependency guidance.
+- No new hook, script, or process is installed by this documentation update.
 
 ## v0.6.0 Release Notes
 
