@@ -4,7 +4,8 @@
 #   1) unbalanced ``` fences
 #   2) broken internal links
 #   3) docs not indexed in docs/index.md ("ghost docs")
-# Exit codes: 0 = clean, 1 = findings (documentation drift detected)
+# Exit codes: 0 = clean, 1 = findings (documentation drift detected),
+#             2 = the checker could not scan the tree (never reported as clean)
 # Advisory by design: this checker reports; it never blocks on its own.
 # Usage: ./scripts/doc-health.sh   (from anywhere inside the repo)
 # Project-only exclusions (e.g. generated screen docs that are never meant
@@ -29,14 +30,20 @@ if [ ! -f "$INDEX" ] && [ -f "core/docs/index.md" ]; then
   SEARCH_ROOT="core"
 fi
 
-EXTRA_PRUNE=""
+# Ignore entries are repository-root-relative. `find` prints paths prefixed with
+# the search root, so the -path pattern must use the same prefix: "./" when
+# scanning ".", nothing when scanning "core".
+IGNORE_PREFIX="./"
+[ "$SEARCH_ROOT" != "." ] && IGNORE_PREFIX=""
+# An array keeps each entry one argument, so paths with spaces stay atomic.
+EXTRA_PRUNE=()
 IGNORE_FILE=".doc-health-ignore"
 if [ -f "$IGNORE_FILE" ]; then
   while IFS= read -r ignore_line; do
     ignore_line="${ignore_line%%#*}"
     ignore_line="$(printf '%s' "$ignore_line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
     [ -z "$ignore_line" ] && continue
-    EXTRA_PRUNE="$EXTRA_PRUNE -o -path ./${ignore_line#./}"
+    EXTRA_PRUNE+=(-o -path "${IGNORE_PREFIX}${ignore_line#./}")
   done < "$IGNORE_FILE"
 fi
 
@@ -44,9 +51,15 @@ MD_FILES="$(
   find "$SEARCH_ROOT" \
     \( -path ./.git -o -path ./.opencode -o -path ./.agents \
        -o -path ./.codex -o -path ./.claude -o -name node_modules \
-       -o -name .next $EXTRA_PRUNE \) \
+       -o -name .next ${EXTRA_PRUNE[@]+"${EXTRA_PRUNE[@]}"} \) \
     -prune -o -name '*.md' -print | sed 's|^\./||'
 )"
+# A failed scan must not look like a clean one: with pipefail the status is
+# find's, and an empty list would otherwise pass every check below.
+if [ $? -ne 0 ]; then
+  echo "ERROR: doc-health could not scan the documentation tree (find failed)." >&2
+  exit 2
+fi
 
 echo "== doc-health =="
 echo "Raíz: $ROOT"
