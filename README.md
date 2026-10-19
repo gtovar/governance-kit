@@ -180,14 +180,15 @@ queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
 project-root resolution error; the corrected installed-entrypoint regression
 requires a successful release notice, not merely a generic failure message.
 
-**PREPARED (v0.6.3 — definition of done in the close ritual)**:
+**v0.6.3 — definition of done in the close ritual**:
 `docs/session_rituals.md` adds a whole-system definition of done to the close
 ritual (step 9): eight checks that each map to a failure seen in a consumer
 repository, plus three working rules (one pull request per slice that carries
 its own state documents, one pull request awaiting integration per repository by
 default, and a repeated defect class means fixing the root cause). It changes
 the behavior of agents that follow the installed close ritual; no script or hook
-changes. The release is not published.
+changes. Whether it is published is shown by the GitHub Releases page, not by
+this file.
 
 **PUBLISHED (v0.6.2 — doc-health.sh ignore handling and scan failures)**:
 `.doc-health-ignore` entries with spaces are no longer split into several `find`
@@ -457,8 +458,6 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.6.3 publication:** merge the reviewed branch, then tag `v0.6.3` and create
-  the GitHub Release. The release is not published yet.
 
 ## v0.6.3 Release Notes
 
