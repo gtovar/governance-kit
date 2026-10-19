@@ -122,20 +122,22 @@ ran and which you did not.
 6. **Report what you left open.** After a merge, list the branches, pull requests
    and helper files that remain. Branch deletion stays advisory and needs the
    owner's explicit approval naming each branch (see `docs/git_hygiene.md`).
-   Create nothing that nobody asked for; if you create a backup or helper file,
-   say so first.
+   Do not create backup or helper files nobody asked for; if one is needed, say
+   so first.
 7. **Say where things stand.** One line: the current branch, what is open, what
    comes next and when you will report.
 8. **Say what you did not verify** (for example, a physical device).
 
 Working rules that keep these checks cheap:
 
-- One pull request per slice, carrying its own state documents. Do not open
-  pull requests that only re-record state.
+- One pull request per slice, carrying its own state documents. Prefer that over
+  opening pull requests that only re-record state; a state-only pull request is
+  fine when no slice exists to carry it, such as recording an owner decision.
 - Default: at most one pull request awaiting integration per repository, unless
   the owner asks for more.
-- A review round is healthy when it finds a new real defect. When a round repeats
-  the same class of defect, stop and fix the root cause (item 4) before pushing again.
+- A review round is healthy when it is clean or finds a new real defect. A clean
+  review of the final commit is the successful end: do not look for more. When a
+  round repeats the same class of defect, stop and fix the root cause (item 4) before pushing again.
 
 ## Truth hierarchy (when docs and code contradict)
 
