@@ -272,16 +272,23 @@ When the owner explicitly names a non-integrated local branch for retirement:
    for dependencies on the branch ref; preserve and test those protections
    before removing or renaming the ref. Identify sensitive or personal material
    before choosing a backup location; never publish an archive branch or bundle
-   that contains it.
+   that contains it. Also check whether the branch has files tracked with Git
+   LFS (for example with `git lfs ls-files`, or `filter=lfs` entries in
+   `.gitattributes`): Git stores only pointer files for them, so a bundle does
+   not contain their contents.
 2. If its history or files must remain recoverable, create a Git bundle outside
    the repository in an access-controlled, local-only location. If no such
    location is available, keep the branch. Do not put the bundle in a synced or
-   published directory.
+   published directory. If LFS-tracked files are involved and their contents
+   are not available elsewhere, also archive those objects in the same kind of
+   location; if that is not possible, keep the branch.
 3. Verify the bundle with `git bundle verify`. Then fetch its named branch into
    a temporary bare repository and verify that the restored commit and tree IDs
    exactly match the original branch. Run `git fsck --full --no-reflogs` on the
-   restored repository. A bundle that has not passed restoration verification
-   is not a substitute for the branch.
+   restored repository. When LFS objects were archived, restore them next to
+   the restored repository and check that each file's SHA-256 matches the `oid`
+   recorded in its pointer. A bundle that has not passed restoration
+   verification is not a substitute for the branch.
 4. Update the owning canonical documents with the local bundle path, branch tip,
    and verification result. Do not record private file contents in those docs.
 5. Remove only the named local branch after the owner has explicitly authorized
@@ -291,8 +298,9 @@ When the owner explicitly names a non-integrated local branch for retirement:
 6. Verify that the branch ref is absent and that a fresh temporary restoration
    from the bundle still yields the recorded commit and tree.
 
-This procedure preserves recoverability while allowing an obsolete local ref
-to be removed. It does not determine whether the branch's contents are valuable;
+This procedure preserves recoverability of the history, and of LFS contents when
+they are archived as described, while allowing an obsolete local ref to be
+removed. It does not determine whether the branch's contents are valuable;
 that judgment must be grounded in the inspected history and the owner's stated
 disposition.
 

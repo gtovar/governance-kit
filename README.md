@@ -180,6 +180,15 @@ queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
 project-root resolution error; the corrected installed-entrypoint regression
 requires a successful release notice, not merely a generic failure message.
 
+**v0.6.4 — Git LFS in the branch retirement procedure**:
+`docs/git_hygiene.md` now tells agents to check for Git LFS files before retiring
+a non-integrated branch: a bundle holds only their pointers, so their contents
+must be archived and verified separately, or the branch is kept. It changes the
+behavior of agents that follow the installed procedure; no script or hook
+changes. Whether it is published is shown by the GitHub Releases page, not by
+this file. Found by the Codex review of the original procedure (PR 1), whose
+thread had stayed unresolved.
+
 **v0.6.3 — definition of done in the close ritual**:
 `docs/session_rituals.md` adds a whole-system definition of done to the close
 ritual (step 9): eight checks that each map to a failure seen in a consumer
@@ -458,6 +467,20 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
+
+## v0.6.4 Release Notes
+
+- `docs/git_hygiene.md`, "Retiring a non-integrated local branch": step 1 adds a
+  check for Git LFS files, step 2 requires archiving their objects separately (or
+  keeping the branch), and step 3 adds a SHA-256 check against the pointer `oid`.
+  A bundle alone does not preserve LFS contents, because Git stores only pointer
+  files for them; this was reported by the Codex review and not reproduced here.
+- Behavior change for agents: an agent following the installed procedure now has
+  to run that check and archive or keep, before it can propose deleting a branch.
+  Deletion still needs the owner's explicit approval; nothing is enforced by a
+  script or hook.
+- Migration: none for project-owned files. A consumer that customized
+  `docs/git_hygiene.md` keeps its version and must merge the three additions by hand.
 
 ## v0.6.3 Release Notes
 
