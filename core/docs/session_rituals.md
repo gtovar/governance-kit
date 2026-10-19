@@ -98,8 +98,42 @@ A read-only re-entry with no state change does not trigger this ritual.
 8. After a successful integration, perform the advisory local branch lifecycle
    review in `docs/git_hygiene.md`. Report candidates only; a local-branch
    deletion requires a separate explicit human instruction.
+9. Before reporting the work as done, run the definition of done below.
 
 A new agent must be able to continue reading only the canonical artifacts — without the previous conversation.
+
+## Definition of done (whole-system check)
+
+Work is done only when the whole system agrees, not when the part just touched
+looks right. Before reporting "done", verify each item and state which ones you
+ran and which you did not.
+
+1. **Shipped equals said.** The summary you give matches the diff that ships;
+   nothing intended is left unstaged or uncommitted.
+2. **Right CI.** The CI result you cite belongs to the exact commit (compare the SHA).
+3. **Review of the final commit.** External or automated review covered the final
+   commit, unresolved review threads are zero, and any review summary that still
+   says "findings" is explained.
+4. **Sweep before pushing.** Search the whole repository for leftovers of the old
+   state (names, dates, versions, counts, "pending" statements) in every
+   document, index, spec and re-entry file, not only the files you edited.
+5. **Verify replies.** A thread answered as "fixed" is checked against the file,
+   not against memory.
+6. **Retire what you opened.** After a merge the branch is retired (local and
+   remote), and nothing was created that nobody asked for. If you create a backup
+   or helper file, say so first.
+7. **Say where things stand.** One line: the current branch, what is open, what
+   comes next and when you will report.
+8. **Say what you did not verify** (for example, a physical device).
+
+Working rules that keep these checks cheap:
+
+- One pull request per slice, carrying its own state documents. Do not open
+  pull requests that only re-record state.
+- Default: at most one pull request awaiting integration per repository, unless
+  the owner asks for more.
+- A review round is healthy when it finds a new real defect. When a round repeats
+  the same class of defect, stop and fix the root cause (item 4) before pushing again.
 
 ## Truth hierarchy (when docs and code contradict)
 
