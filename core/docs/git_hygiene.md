@@ -272,16 +272,20 @@ When the owner explicitly names a non-integrated local branch for retirement:
    for dependencies on the branch ref; preserve and test those protections
    before removing or renaming the ref. Identify sensitive or personal material
    before choosing a backup location; never publish an archive branch or bundle
-   that contains it. Also check whether the branch has files tracked with Git
-   LFS (for example with `git lfs ls-files`, or `filter=lfs` entries in
-   `.gitattributes`): Git stores only pointer files for them, so a bundle does
-   not contain their contents.
+   that contains it. Also check whether the named branch has files tracked with
+   Git LFS anywhere in its history, not only in its current tree and not only
+   on the checked-out branch. For example, `git lfs ls-files --deleted --long
+   <branch>` covers the full history of the named branch (without a reference,
+   `git lfs ls-files` scans only the checked-out branch, and with a reference
+   but without `--deleted` it examines only that reference's tree). Git stores
+   only pointer files for LFS content, so a bundle does not contain it.
 2. If its history or files must remain recoverable, create a Git bundle outside
    the repository in an access-controlled, local-only location. If no such
    location is available, keep the branch. Do not put the bundle in a synced or
    published directory. If LFS-tracked files are involved and their contents
-   are not available elsewhere, also archive those objects in the same kind of
-   location; if that is not possible, keep the branch.
+   are not available elsewhere, make sure every object found in step 1 is present
+   locally and archive each one in the same kind of location; if that is not
+   possible, keep the branch.
 3. Verify the bundle with `git bundle verify`. Then fetch its named branch into
    a temporary bare repository and verify that the restored commit and tree IDs
    exactly match the original branch. Run `git fsck --full --no-reflogs` on the

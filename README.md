@@ -471,8 +471,11 @@ contract is validated after rollout in a fresh project session.
 ## v0.6.4 Release Notes
 
 - `docs/git_hygiene.md`, "Retiring a non-integrated local branch": step 1 adds a
-  check for Git LFS files, step 2 requires archiving their objects separately (or
-  keeping the branch), and step 3 adds a SHA-256 check against the pointer `oid`.
+  check for Git LFS files across the full history of the named branch (the Git LFS
+  manual says `git lfs ls-files` without a reference scans only the checked-out
+  branch, and `--deleted` covers the full history), step 2 requires archiving every
+  object found separately (or keeping the branch), and step 3 adds a SHA-256 check
+  against the pointer `oid`.
   A bundle alone does not preserve LFS contents, because Git stores only pointer
   files for them; this was reported by the Codex review and not reproduced here.
 - Behavior change for agents: an agent following the installed procedure now has
