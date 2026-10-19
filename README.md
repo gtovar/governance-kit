@@ -180,12 +180,22 @@ queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
 project-root resolution error; the corrected installed-entrypoint regression
 requires a successful release notice, not merely a generic failure message.
 
-**PREPARED (v0.6.2 — doc-health.sh ignore handling and scan failures)**:
+**v0.6.3 — definition of done in the close ritual**:
+`docs/session_rituals.md` adds a whole-system definition of done to the close
+ritual (step 9): eight checks that each map to a failure seen in a consumer
+repository, plus three working rules (one pull request per slice that carries
+its own state documents, one pull request awaiting integration per repository by
+default, and a repeated defect class means fixing the root cause). It changes
+the behavior of agents that follow the installed close ritual; no script or hook
+changes. Whether it is published is shown by the GitHub Releases page, not by
+this file.
+
+**PUBLISHED (v0.6.2 — doc-health.sh ignore handling and scan failures)**:
 `.doc-health-ignore` entries with spaces are no longer split into several `find`
 arguments, repository-relative entries now match in the kit's source layout, and
 a failed scan exits 2 instead of reporting a clean run. `tests/test_doc_health.py`
 covers each case. Found by the Codex review of the Pulso consumer repository
-(gtovar/Pulso#5). The release is not published.
+(gtovar/Pulso#5).
 
 **PUBLISHED (v0.6.1 — preserve local safety guards when retiring a branch)**:
 the archive retirement procedure now requires checking whether local hooks or
@@ -448,8 +458,24 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.6.2 publication:** merge the reviewed branch, then tag `v0.6.2` and create
-  the GitHub Release. The release is not published yet.
+
+## v0.6.3 Release Notes
+
+- `docs/session_rituals.md` gains step 9 of the close ritual and a "Definition of
+  done (whole-system check)" section: eight checks (shipped equals said, right CI,
+  review of the final commit, a repository-wide sweep before pushing, verified
+  replies, reporting what was left open, saying where things stand, saying what was
+  not verified) and three working rules.
+- Behavior change for agents: after the safe update, an uncustomized consumer's
+  session-close routing runs the new checks. Closing work now requires stating
+  which of the eight checks were run and which were not, and the three working
+  rules apply as written (the one-pull-request-awaiting-integration limit is a
+  default the owner can change). The checks are guidance for the agent; no script
+  or hook enforces them.
+- No script or hook changes.
+- Migration: none for project-owned files. The updated ritual reaches consumer
+  repositories through the safe update; a consumer that customized
+  `docs/session_rituals.md` keeps its version and must merge the new section by hand.
 
 ## v0.6.2 Release Notes
 
