@@ -10,7 +10,7 @@
 - [documentation_rules.md](documentation_rules.md) — language/tone + gates G0–G3 + DDR + layer separation
 - [git_hygiene.md](git_hygiene.md) — Desk/Tray/Canon, classification, ghost docs, commit protocol
 - [good_practices.md](good_practices.md) — engineering baseline (naming, SOLID, testing, security)
-- [session_rituals.md](session_rituals.md) — start/close rituals, mini-block, truth hierarchy
+- [session_rituals.md](session_rituals.md) — start/close rituals, definition of done, mini-block, truth hierarchy
 - [TESTING_STRATEGY.md](TESTING_STRATEGY.md) — how to choose test depth
 - [learning_capture.md](learning_capture.md) — reusable lessons inbox
 - [instruction-registry.json](instruction-registry.json) — declarative rule catalog with severities and vehicles
