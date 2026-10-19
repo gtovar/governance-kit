@@ -185,8 +185,9 @@ requires a successful release notice, not merely a generic failure message.
 ritual (step 9): eight checks that each map to a failure seen in a consumer
 repository, plus three working rules (one pull request per slice that carries
 its own state documents, one pull request awaiting integration per repository by
-default, and a repeated defect class means fixing the root cause). The release is
-not published.
+default, and a repeated defect class means fixing the root cause). It changes
+the behavior of agents that follow the installed close ritual; no script or hook
+changes. The release is not published.
 
 **PUBLISHED (v0.6.2 — doc-health.sh ignore handling and scan failures)**:
 `.doc-health-ignore` entries with spaces are no longer split into several `find`
@@ -466,7 +467,13 @@ contract is validated after rollout in a fresh project session.
   review of the final commit, a repository-wide sweep before pushing, verified
   replies, reporting what was left open, saying where things stand, saying what was
   not verified) and three working rules.
-- No script, hook or installed behavior changes.
+- Behavior change for agents: after the safe update, an uncustomized consumer's
+  session-close routing runs the new checks. Closing work now requires stating
+  which of the eight checks were run and which were not, and the three working
+  rules apply as written (the one-pull-request-awaiting-integration limit is a
+  default the owner can change). The checks are guidance for the agent; no script
+  or hook enforces them.
+- No script or hook changes.
 - Migration: none for project-owned files. The updated ritual reaches consumer
   repositories through the safe update; a consumer that customized
   `docs/session_rituals.md` keeps its version and must merge the new section by hand.
