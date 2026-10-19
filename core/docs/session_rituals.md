@@ -119,9 +119,11 @@ ran and which you did not.
    document, index, spec and re-entry file, not only the files you edited.
 5. **Verify replies.** A thread answered as "fixed" is checked against the file,
    not against memory.
-6. **Retire what you opened.** After a merge the branch is retired (local and
-   remote), and nothing was created that nobody asked for. If you create a backup
-   or helper file, say so first.
+6. **Report what you left open.** After a merge, list the branches, pull requests
+   and helper files that remain. Branch deletion stays advisory and needs the
+   owner's explicit approval naming each branch (see `docs/git_hygiene.md`).
+   Create nothing that nobody asked for; if you create a backup or helper file,
+   say so first.
 7. **Say where things stand.** One line: the current branch, what is open, what
    comes next and when you will report.
 8. **Say what you did not verify** (for example, a physical device).

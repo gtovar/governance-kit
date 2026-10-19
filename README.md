@@ -464,7 +464,7 @@ contract is validated after rollout in a fresh project session.
 - `docs/session_rituals.md` gains step 9 of the close ritual and a "Definition of
   done (whole-system check)" section: eight checks (shipped equals said, right CI,
   review of the final commit, a repository-wide sweep before pushing, verified
-  replies, retiring what was opened, saying where things stand, saying what was
+  replies, reporting what was left open, saying where things stand, saying what was
   not verified) and three working rules.
 - No script, hook or installed behavior changes.
 - Migration: none for project-owned files. The updated ritual reaches consumer
