@@ -180,10 +180,17 @@ queried GitHub and emitted `0.1.1 -> v0.3.0`. The first live run exposed a
 project-root resolution error; the corrected installed-entrypoint regression
 requires a successful release notice, not merely a generic failure message.
 
-**PREPARED (v0.6.1 — preserve local safety guards when retiring a branch)**:
+**PREPARED (v0.6.2 — doc-health.sh ignore handling and scan failures)**:
+`.doc-health-ignore` entries with spaces are no longer split into several `find`
+arguments, repository-relative entries now match in the kit's source layout, and
+a failed scan exits 2 instead of reporting a clean run. `tests/test_doc_health.py`
+covers each case. Found by the Codex review of the Pulso consumer repository
+(gtovar/Pulso#5). The release is not published.
+
+**PUBLISHED (v0.6.1 — preserve local safety guards when retiring a branch)**:
 the archive retirement procedure now requires checking whether local hooks or
 scripts rely on the branch ref and preserving/testing those protections before
-the ref is removed. The release is not published.
+the ref is removed.
 
 **DONE (v1)**: universal layer + opencode + installer + full harvest (constitution, docs with declared vehicles, 15 templates, 5 skills, reviewer, hooks, doc-health, comment-hygiene, precedence, operating policy, portable distribution).
 
@@ -441,8 +448,22 @@ contract is validated after rollout in a fresh project session.
 - **Agent compatibility evidence:** define what evidence justifies the workflow's
   broad "any new agent" Gate F0 wording before narrowing or claiming it. The
   observed Pulso handoff covers Codex only and does not settle that policy.
-- **v0.6.1 publication:** complete the published-branch review and release
-  validation for the current source snapshot. The release is not published yet.
+- **v0.6.2 publication:** merge the reviewed branch, then tag `v0.6.2` and create
+  the GitHub Release. The release is not published yet.
+
+## v0.6.2 Release Notes
+
+- `scripts/doc-health.sh`: a `.doc-health-ignore` entry containing spaces stays
+  one path. Before, it was split into several `find` arguments, `find` failed,
+  and the script reported "limpio" with exit 0 while skipping every check.
+- Repository-root-relative entries now match when the script scans the kit's
+  `core/` source layout.
+- Compatibility: when the documentation tree cannot be scanned, the script now
+  exits 2 (documented next to the existing 0 = clean and 1 = findings). A caller
+  that treats any non-zero status as a failed check keeps working.
+- Migration: none for project-owned files. The updated script reaches consumer
+  repositories through the safe update; a consumer that edited its copy locally
+  keeps its version and must merge the change by hand.
 
 ## v0.6.1 Release Notes
 
